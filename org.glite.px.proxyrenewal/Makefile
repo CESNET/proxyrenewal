@@ -22,7 +22,7 @@
 #
 
 # defaults
-top_srcdir=.
+top_srcdir=..
 builddir=build
 top_builddir=${top_srcdir}/${builddir}
 stagedir=.
@@ -32,36 +32,41 @@ lbprefix=lb
 package=glite-security-proxyrenewal
 version=0.0.0
 PREFIX=/opt/glite
+libdir=lib
 
-glite_location=$PREFIX
+glite_location=${PREFIX}
 globus_prefix=/opt/globus
 nothrflavour=gcc32
 thrflavour=gcc32pthr
-myproxy_prefix=$globus_prefix
+myproxy_prefix=${globus_prefix}
 
 -include Makefile.inc
 
 VPATH:=${top_srcdir}/src:${top_srcdir}/examples
 
-GLOBUSINC:= -I${globus_prefix}/include/${nothrflavour} \
-	-I${globus_prefix}/include/${nothrflavour}/openssl
+GLOBUSINC:= -I${globus_prefix}/include/${nothrflavour}
+#	-I${globus_prefix}/include/${nothrflavour}/openssl
 
-GLOBUSTHRINC:= -I${globus_prefix}/include/${thrflavour} \
-	-I${globus_prefix}/include/${thrflavour}/openssl
+GLOBUSTHRINC:= -I${globus_prefix}/include/${thrflavour}
+#	-I${globus_prefix}/include/${thrflavour}/openssl
 
 MYPROXYINC:= -I${myproxy_prefix}/include/${nothrflavour}
 MYPROXYTHRINC:= -I${myproxy_prefix}/include/${thrflavour}
 
+VOMSINC:=-I${voms_prefix}/include
+
 DEBUG:=-g -O0
 
-CFLAGS:= ${DEBUG} \
+CFLAGS:= ${CFLAGS} ${DEBUG} \
 	${MYPROXYINC} \
+	${VOMSINC} \
 	-I${top_srcdir}/src -I${top_srcdir}/interface \
 	-I${glite_location}/include
 
 GLOBUS_LIBS:=-L${globus_prefix}/lib \
 	-lglobus_common_${nothrflavour} \
-	-lssl_${nothrflavour}
+	-lssl
+#	-lssl_${nothrflavour}
 
 MYPROXY_LIB_NOTHR :=-L${myproxy_prefix}/lib -lmyproxy_${nothrflavour}
 MYPROXY_LIB_THR:=-L${myproxy_prefix}/lib -lmyproxy_${thrflavour}
@@ -70,6 +75,7 @@ offset=1
 version_info:=-version-info ${shell \
 	perl -e '$$,=":"; @F=split "\\.","${version}"; print $$F[0]+$$F[1]+${offset},$$F[2],$$F[1]' }
 
+CC:=gcc
 COMPILE:=libtool --mode=compile ${CC} ${CFLAGS}
 LINK:=libtool --mode=link ${CC} ${LDFLAGS}
 INSTALL:=libtool --mode=install install
@@ -93,8 +99,8 @@ THRLIB:=libglite_security_proxyrenewal_${thrflavour}.la
 LIB_CORE_NOTHR := libglite_security_proxyrenewal_core_${nothrflavour}.la
 LIB_CORE_THR := libglite_security_proxyrenewal_core_${thrflavour}.la
 
-VOMS_LIB_NOTHR := -L${glite_location}/lib -lvomsc_${nothrflavour}
-VOMS_LIB_THR := -L${glite_location}/lib -lvomsc_${thrflavour}
+VOMS_LIB_NOTHR := -L${voms_prefix}/${libdir} -lvomsc_${nothrflavour}
+VOMS_LIB_THR := -L${voms_prefix}/${libdir} -lvomsc_${thrflavour}
 
 DAEMON:=glite-proxy-renewd
 CLIENT:=glite-proxy-renew
