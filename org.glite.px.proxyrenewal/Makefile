@@ -36,40 +36,38 @@ libdir=lib
 
 glite_location=${PREFIX}
 globus_prefix=/opt/globus
-nothrflavour=gcc32
-thrflavour=gcc32pthr
 myproxy_prefix=${globus_prefix}
 
 -include Makefile.inc
 
 VPATH:=${top_srcdir}/src:${top_srcdir}/examples
 
-GLOBUSINC:= -I${globus_prefix}/include/${nothrflavour}
-#	-I${globus_prefix}/include/${nothrflavour}/openssl
+GLOBUS_NOTHR_INC:= -I${globus_prefix}/include/${nothrflavour}
+GLOBUS_THR_INC:= -I${globus_prefix}/include/${thrflavour}
+GLOBUS_NOTHR_LIBS:=-L${globus_prefix}/lib \
+	-lglobus_common_${nothrflavour} \
+	-lssl
 
-GLOBUSTHRINC:= -I${globus_prefix}/include/${thrflavour}
-#	-I${globus_prefix}/include/${thrflavour}/openssl
+MYPROXY_NOTHR_INC:= -I${myproxy_prefix}/include/${nothrflavour}
+MYPROXY_THR_INC:= -I${myproxy_prefix}/include/${thrflavour}
 
-MYPROXYINC:= -I${myproxy_prefix}/include/${nothrflavour}
-MYPROXYTHRINC:= -I${myproxy_prefix}/include/${thrflavour}
+MYPROXY_LIB_NOTHR :=-L${myproxy_prefix}/lib -lmyproxy_${nothrflavour}
+MYPROXY_LIB_THR:=-L${myproxy_prefix}/lib -lmyproxy_${thrflavour}
 
 VOMSINC:=-I${voms_prefix}/include
+
+GLOBUS_GSSAPI_GSI_CFLAGS?=${GLOBUS_NOTHR_INC}
+GLOBUS_GSSAPI_GSI_LIBS?=${GLOBUS_NOTHR_LIBS}
+
+MYPROXY_CFLAGS?=${MYPROXY_NOTHR_INC}
+MYPROXY_LIBS?=${MYPROXY_LIB_NOTHR}
 
 DEBUG:=-g -O0
 
 CFLAGS:= ${CFLAGS} ${DEBUG} \
-	${MYPROXYINC} \
 	${VOMSINC} \
 	-I${top_srcdir}/src -I${top_srcdir}/interface \
 	-I${glite_location}/include
-
-GLOBUS_LIBS:=-L${globus_prefix}/lib \
-	-lglobus_common_${nothrflavour} \
-	-lssl
-#	-lssl_${nothrflavour}
-
-MYPROXY_LIB_NOTHR :=-L${myproxy_prefix}/lib -lmyproxy_${nothrflavour}
-MYPROXY_LIB_THR:=-L${myproxy_prefix}/lib -lmyproxy_${thrflavour}
 
 offset=1
 version_info:=-version-info ${shell \
@@ -89,52 +87,70 @@ THRLIBOBJ:=${LIBOBJ:.o=.thr.o}
 LIBLOBJ:=${LIBOBJ:.o=.lo}
 THRLIBLOBJ:=${LIBOBJ:.o=.thr.lo}
 
-LIB_CORE_NOTHR_OBJS := ${LIB_CORE_OBJS}
-LIB_CORE_NOTHR_LOBJS := ${LIB_CORE_OBJS:.o=.lo}
+LIB_CORE_LOBJS := ${LIB_CORE_OBJS:.o=.lo}
 LIB_CORE_THR_OBJS := ${LIB_CORE_OBJS:.o=.thr.o}
 LIB_CORE_THR_LOBJS := ${LIB_CORE_OBJS:.o=.thr.lo}
 
-LIB:=libglite_security_proxyrenewal_${nothrflavour}.la
+LIB:=libglite_security_proxyrenewal.la
+NOTHRLIB:=libglite_security_proxyrenewal_${nothrflavour}.la
 THRLIB:=libglite_security_proxyrenewal_${thrflavour}.la
+LIB_CORE := libglite_security_proxyrenewal_core.la
 LIB_CORE_NOTHR := libglite_security_proxyrenewal_core_${nothrflavour}.la
 LIB_CORE_THR := libglite_security_proxyrenewal_core_${thrflavour}.la
 
+VOMS_LIB := -L${voms_prefix}/${libdir} -lvomsc
 VOMS_LIB_NOTHR := -L${voms_prefix}/${libdir} -lvomsc_${nothrflavour}
 VOMS_LIB_THR := -L${voms_prefix}/${libdir} -lvomsc_${thrflavour}
+
+ifeq (${thrflavour},)
+lib_LTLIBRARIES=${LIB} ${LIB_CORE}
+default_libcore=${LIB_CORE}
+else
+lib_LTLIBRARIES=${NOTHRLIB} ${THRLIB} ${LIB_CORE_NOTHR}
+default_libcore=${LIB_CORE_NOTHR}
+endif
 
 DAEMON:=glite-proxy-renewd
 CLIENT:=glite-proxy-renew
 EXAMPLES := renew_core
 
 default: all
-compile all: ${LIB} ${THRLIB} ${LIB_CORE_NOTHR} ${DAEMON} ${CLIENT} 
+compile all: ${lib_LTLIBRARIES} ${DAEMON} ${CLIENT} 
 
+ifeq (${thrflavour},)
 ${LIB}: ${LIBOBJ}
+	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/lib
+
+${LIB_CORE}: ${LIB_CORE_OBJS}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIBS} ${VOMS_LIB}
+else
+${NOTHRLIB}: ${LIBOBJ}
 	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/lib
 
 ${THRLIB}: ${THRLIBOBJ}
 	${LINK} ${version_info} -o $@ ${THRLIBLOBJ} -rpath ${glite_location}/lib
 
-${LIB_CORE_NOTHR}: ${LIB_CORE_NOTHR_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_NOTHR_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIB_NOTHR} ${VOMS_LIB_NOTHR}
+${LIB_CORE_NOTHR}: ${LIB_CORE_OBJS}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIB_NOTHR} ${VOMS_LIB_NOTHR}
 
 ${LIB_CORE_THR}: ${LIB_CORE_THR_OBJS}
 	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIB_THR} ${VOMS_LIB_THR}
+endif
 
-${DAEMON}: ${DAEMONOBJ} ${LIB_CORE_NOTHR}
-	${LINK} -o $@ ${DAEMONOBJ} ${LIB_CORE_NOTHR} 
+${DAEMON}: ${DAEMONOBJ} ${default_libcore}
+	${LINK} -o $@ ${DAEMONOBJ} ${default_libcore}
 
-${CLIENT}: ${CLIENTOBJ} ${LIB}
-	${LINK} -o $@ ${CLIENTOBJ} ${LIB} ${GLOBUS_LIBS}
+${CLIENT}: ${CLIENTOBJ} ${NOTHRLIB}
+	${LINK} -o $@ ${CLIENTOBJ} ${NOTHRLIB} ${GLOBUS_GSSAPI_GSI_LIBS}
 
 ${THRLIBOBJ} ${LIB_CORE_THR_OBJS}: %.thr.o: %.c
-	${COMPILE} ${GLOBUSTHRINC} -o $@ -c $<
+	${COMPILE} ${MYPROXY_THR_INC} ${GLOBUS_THR_INC} -o $@ -c $<
 
 %.o: %.c
-	${COMPILE} ${GLOBUSINC} -c $<
+	${COMPILE} ${MYPROXY_CFLAGS} ${GLOBUS_GSSAPI_GSI_CFLAGS} -c $<
 
 ${EXAMPLES}: %: %.o
-	${LINK} -o $@ $< ${LIB_CORE_NOTHR}
+	${LINK} -o $@ $< ${default_libcore}
 
 stage: compile
 	$(MAKE) install PREFIX=${stagedir}
@@ -159,7 +175,7 @@ distbin:
 
 install:
 	-mkdir -p ${PREFIX}/bin ${PREFIX}/lib ${PREFIX}/include/glite/security/proxyrenewal ${PREFIX}/share/doc/${package}-${version} ${PREFIX}/etc/init.d
-	${INSTALL} -m 644 ${LIB} ${THRLIB} ${LIB_CORE_NOTHR} ${PREFIX}/lib
+	${INSTALL} -m 644 ${lib_LTLIBRARIES} ${PREFIX}/lib
 	${INSTALL} -m 755 ${DAEMON} ${CLIENT} ${PREFIX}/bin
 	${INSTALL} -m 644 ${top_srcdir}/LICENSE ${PREFIX}/share/doc/${package}-${version}
 	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${PREFIX}/include/glite/security/proxyrenewal
@@ -168,6 +184,6 @@ install:
 
 
 clean:
-	$(RM) $(LIB) ${THRLIB} ${LIB_CORE_NOTHR} ${LIB_CORE_THR} $(DAEMON) $(CLIENT) $(EXAMPLES) *.o *.lo core 
+	$(RM) ${lib_LTLIBRARIES} $(DAEMON) $(CLIENT) $(EXAMPLES) *.o *.lo core 
 
 .PHONY: default all compile examples check stage dist distsrc distbin install clean
