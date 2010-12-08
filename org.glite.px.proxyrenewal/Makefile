@@ -54,7 +54,7 @@ MYPROXY_THR_INC:= -I${myproxy_prefix}/include/${thrflavour}
 MYPROXY_LIB_NOTHR :=-L${myproxy_prefix}/lib -lmyproxy_${nothrflavour}
 MYPROXY_LIB_THR:=-L${myproxy_prefix}/lib -lmyproxy_${thrflavour}
 
-VOMSINC:=-I${voms_prefix}/include
+VOMSINC:=-I${voms_prefix}/include -I${voms_prefix}/include/security/voms
 
 GLOBUS_GSSAPI_GSI_CFLAGS?=${GLOBUS_NOTHR_INC}
 GLOBUS_GSSAPI_GSI_LIBS?=${GLOBUS_NOTHR_LIBS}
@@ -105,9 +105,11 @@ VOMS_LIB_THR := -L${voms_prefix}/${libdir} -lvomsc_${thrflavour}
 ifeq (${thrflavour},)
 lib_LTLIBRARIES=${LIB} ${LIB_CORE}
 default_libcore=${LIB_CORE}
+default_lib=${LIB}
 else
 lib_LTLIBRARIES=${NOTHRLIB} ${THRLIB} ${LIB_CORE_NOTHR}
 default_libcore=${LIB_CORE_NOTHR}
+default_lib=${NOTHRLIB}
 endif
 
 DAEMON:=glite-proxy-renewd
@@ -140,8 +142,8 @@ endif
 ${DAEMON}: ${DAEMONOBJ} ${default_libcore}
 	${LINK} -o $@ ${DAEMONOBJ} ${default_libcore}
 
-${CLIENT}: ${CLIENTOBJ} ${NOTHRLIB}
-	${LINK} -o $@ ${CLIENTOBJ} ${NOTHRLIB} ${GLOBUS_GSSAPI_GSI_LIBS}
+${CLIENT}: ${CLIENTOBJ} ${default_lib}
+	${LINK} -o $@ ${CLIENTOBJ} ${default_lib} ${GLOBUS_GSSAPI_GSI_LIBS}
 
 ${THRLIBOBJ} ${LIB_CORE_THR_OBJS}: %.thr.o: %.c
 	${COMPILE} ${MYPROXY_THR_INC} ${GLOBUS_THR_INC} -o $@ -c $<

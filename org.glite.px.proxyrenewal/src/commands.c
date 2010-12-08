@@ -1,7 +1,7 @@
 #include "renewal_locl.h"
 #include "renewd_locl.h"
 
-#include "glite/security/voms/voms_apic.h"
+#include "voms/voms_apic.h"
 
 #ident "$Header$"
 

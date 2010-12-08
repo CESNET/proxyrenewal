@@ -4,9 +4,9 @@
 #include <string.h>
 #include <openssl/x509.h>
 
-#include "glite/security/voms/voms_apic.h"
+#include "voms/voms_apic.h"
 
-#include "glite/security/voms/newformat.h"
+#include "voms/newformat.h"
 
 char * Decode(const char *, int, int *);
 char **listadd(char **, char *, int);
