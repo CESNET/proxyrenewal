@@ -54,7 +54,10 @@ MYPROXY_THR_INC:= -I${myproxy_prefix}/include/${thrflavour}
 MYPROXY_LIB_NOTHR :=-L${myproxy_prefix}/lib -lmyproxy_${nothrflavour}
 MYPROXY_LIB_THR:=-L${myproxy_prefix}/lib -lmyproxy_${thrflavour}
 
-VOMSINC:=-I${voms_prefix}/include -I${voms_prefix}/include/security/voms
+VOMS_CFLAGS?=-I${voms_prefix}/include -I${voms_prefix}/include/security/voms
+VOMS_LIBS?=-L${voms_prefix}/${libdir} -lvomsapi
+VOMS_LIBS_NOTHR := -L${voms_prefix}/${libdir} -lvomsapi_${nothrflavour}
+VOMS_LIBS_THR := -L${voms_prefix}/${libdir} -lvomsapi_${thrflavour}
 
 GLOBUS_GSSAPI_GSI_CFLAGS?=${GLOBUS_NOTHR_INC}
 GLOBUS_GSSAPI_GSI_LIBS?=${GLOBUS_NOTHR_LIBS}
@@ -65,7 +68,7 @@ MYPROXY_LIBS?=${MYPROXY_LIB_NOTHR}
 DEBUG:=-g -O0
 
 CFLAGS:= ${CFLAGS} ${DEBUG} \
-	${VOMSINC} \
+	${VOMS_CFLAGS} \
 	-I${top_srcdir}/src -I${top_srcdir}/interface \
 	-I${glite_location}/include
 
@@ -98,10 +101,6 @@ LIB_CORE := libglite_security_proxyrenewal_core.la
 LIB_CORE_NOTHR := libglite_security_proxyrenewal_core_${nothrflavour}.la
 LIB_CORE_THR := libglite_security_proxyrenewal_core_${thrflavour}.la
 
-VOMS_LIB := -L${voms_prefix}/${libdir} -lvomsc
-VOMS_LIB_NOTHR := -L${voms_prefix}/${libdir} -lvomsc_${nothrflavour}
-VOMS_LIB_THR := -L${voms_prefix}/${libdir} -lvomsc_${thrflavour}
-
 ifeq (${thrflavour},)
 lib_LTLIBRARIES=${LIB} ${LIB_CORE}
 default_libcore=${LIB_CORE}
@@ -124,7 +123,7 @@ ${LIB}: ${LIBOBJ}
 	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/lib
 
 ${LIB_CORE}: ${LIB_CORE_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIBS} ${VOMS_LIB}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIBS} ${VOMS_LIBS}
 else
 ${NOTHRLIB}: ${LIBOBJ}
 	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/lib
@@ -133,10 +132,10 @@ ${THRLIB}: ${THRLIBOBJ}
 	${LINK} ${version_info} -o $@ ${THRLIBLOBJ} -rpath ${glite_location}/lib
 
 ${LIB_CORE_NOTHR}: ${LIB_CORE_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIB_NOTHR} ${VOMS_LIB_NOTHR}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIB_NOTHR} ${VOMS_LIBS_NOTHR}
 
 ${LIB_CORE_THR}: ${LIB_CORE_THR_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIB_THR} ${VOMS_LIB_THR}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIB_THR} ${VOMS_LIBS_THR}
 endif
 
 ${DAEMON}: ${DAEMONOBJ} ${default_libcore}
