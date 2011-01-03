@@ -36,7 +36,6 @@ libdir=lib
 
 glite_location=${PREFIX}
 globus_prefix=/opt/globus
-myproxy_prefix=${globus_prefix}
 
 -include Makefile.inc
 
@@ -47,6 +46,9 @@ GLOBUS_THR_INC:= -I${globus_prefix}/include/${thrflavour}
 GLOBUS_NOTHR_LIBS:=-L${globus_prefix}/lib \
 	-lglobus_common_${nothrflavour} \
 	-lssl
+
+myproxy_prefix=${myproxy-essentials_prefix}
+myproxy_prefix?=${globus_prefix}
 
 MYPROXY_NOTHR_INC:= -I${myproxy_prefix}/include/${nothrflavour}
 MYPROXY_THR_INC:= -I${myproxy_prefix}/include/${thrflavour}
