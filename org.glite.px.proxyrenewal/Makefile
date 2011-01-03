@@ -56,7 +56,7 @@ MYPROXY_THR_INC:= -I${myproxy_prefix}/include/${thrflavour}
 MYPROXY_LIB_NOTHR :=-L${myproxy_prefix}/lib -lmyproxy_${nothrflavour}
 MYPROXY_LIB_THR:=-L${myproxy_prefix}/lib -lmyproxy_${thrflavour}
 
-VOMS_CFLAGS?=-I${voms_prefix}/include -I${voms_prefix}/include/security/voms
+VOMS_CFLAGS?=-I${voms_prefix}/include -I${voms_prefix}/include/glite/security
 VOMS_LIBS?=-L${voms_prefix}/${libdir} -lvomsapi
 VOMS_LIBS_NOTHR := -L${voms_prefix}/${libdir} -lvomsapi_${nothrflavour}
 VOMS_LIBS_THR := -L${voms_prefix}/${libdir} -lvomsapi_${thrflavour}
