@@ -1,7 +1,0 @@
-1.3.11-5
-- Module rebuilt and moved
-
-1.3.12-1
-- Alternative org.glite/emi builds enabled
-- VOMS headers moved for EMI/EPEL
-
