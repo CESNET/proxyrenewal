@@ -53,8 +53,8 @@ myproxy_prefix?=${globus_prefix}
 MYPROXY_NOTHR_INC:= -I${myproxy_prefix}/include/${nothrflavour}
 MYPROXY_THR_INC:= -I${myproxy_prefix}/include/${thrflavour}
 
-MYPROXY_LIB_NOTHR :=-L${myproxy_prefix}/lib -lmyproxy_${nothrflavour}
-MYPROXY_LIB_THR:=-L${myproxy_prefix}/lib -lmyproxy_${thrflavour}
+MYPROXY_LIB_NOTHR :=-L${myproxy_prefix}/${libdir} -L${myproxy_prefix}/lib -lmyproxy_${nothrflavour}
+MYPROXY_LIB_THR:=-L${myproxy_prefix}/${libdir} -L${myproxy_prefix}/lib -lmyproxy_${thrflavour}
 
 VOMS_CFLAGS?=-I${voms_prefix}/include -I${voms_prefix}/include/glite/security
 VOMS_LIBS?=-L${voms_prefix}/${libdir} -lvomsapi
@@ -122,22 +122,22 @@ compile all: ${lib_LTLIBRARIES} ${DAEMON} ${CLIENT}
 
 ifeq (${thrflavour},)
 ${LIB}: ${LIBOBJ}
-	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/lib
+	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/${libdir}
 
 ${LIB_CORE}: ${LIB_CORE_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIBS} ${VOMS_LIBS}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/${libdir} ${MYPROXY_LIBS} ${VOMS_LIBS}
 else
 ${NOTHRLIB}: ${LIBOBJ}
-	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/lib
+	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/${libdir}
 
 ${THRLIB}: ${THRLIBOBJ}
-	${LINK} ${version_info} -o $@ ${THRLIBLOBJ} -rpath ${glite_location}/lib
+	${LINK} ${version_info} -o $@ ${THRLIBLOBJ} -rpath ${glite_location}/${libdir}
 
 ${LIB_CORE_NOTHR}: ${LIB_CORE_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIB_NOTHR} ${VOMS_LIBS_NOTHR}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/${libdir} ${MYPROXY_LIB_NOTHR} ${VOMS_LIBS_NOTHR}
 
 ${LIB_CORE_THR}: ${LIB_CORE_THR_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${glite_location}/lib ${MYPROXY_LIB_THR} ${VOMS_LIBS_THR}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${glite_location}/${libdir} ${MYPROXY_LIB_THR} ${VOMS_LIBS_THR}
 endif
 
 ${DAEMON}: ${DAEMONOBJ} ${default_libcore}
@@ -177,8 +177,8 @@ distbin:
 	rm -rf tmpbuilddir
 
 install:
-	-mkdir -p ${PREFIX}/bin ${PREFIX}/lib ${PREFIX}/include/glite/security/proxyrenewal ${PREFIX}/share/doc/${package}-${version} ${PREFIX}/etc/init.d
-	${INSTALL} -m 644 ${lib_LTLIBRARIES} ${PREFIX}/lib
+	-mkdir -p ${PREFIX}/bin ${PREFIX}/${libdir} ${PREFIX}/include/glite/security/proxyrenewal ${PREFIX}/share/doc/${package}-${version} ${PREFIX}/etc/init.d
+	${INSTALL} -m 644 ${lib_LTLIBRARIES} ${PREFIX}/${libdir}
 	${INSTALL} -m 755 ${DAEMON} ${CLIENT} ${PREFIX}/bin
 	${INSTALL} -m 644 ${top_srcdir}/LICENSE ${PREFIX}/share/doc/${package}-${version}
 	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${PREFIX}/include/glite/security/proxyrenewal
