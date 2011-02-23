@@ -7,3 +7,7 @@
 4.1.0-2
 - Module rebuilt
 
+4.1.1-1
+- Modifications for build with EMI
+- Configuration adjusted for EMI
+
