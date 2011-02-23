@@ -47,7 +47,7 @@ GLOBUS_NOTHR_LIBS:=-L${globus_prefix}/lib \
 	-lglobus_common_${nothrflavour} \
 	-lssl
 
-myproxy_prefix=${myproxy-essentials_prefix}
+myproxy_prefix=${myproxy-devel_prefix}
 myproxy_prefix?=${globus_prefix}
 
 MYPROXY_NOTHR_INC:= -I${myproxy_prefix}/include/${nothrflavour}
