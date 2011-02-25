@@ -33,8 +33,10 @@ package=glite-security-proxyrenewal
 version=0.0.0
 PREFIX=/opt/glite
 libdir=lib
+prefix=
+sysconfdir=/opt/glite/etc
 
-glite_location=${PREFIX}
+glite_location=${PREFIX}${prefix}
 globus_prefix=/opt/globus
 
 -include Makefile.inc
@@ -177,13 +179,12 @@ distbin:
 	rm -rf tmpbuilddir
 
 install:
-	-mkdir -p ${PREFIX}/bin ${PREFIX}/${libdir} ${PREFIX}/include/glite/security/proxyrenewal ${PREFIX}/share/doc/${package}-${version} ${PREFIX}/etc/init.d
-	${INSTALL} -m 644 ${lib_LTLIBRARIES} ${PREFIX}/${libdir}
-	${INSTALL} -m 755 ${DAEMON} ${CLIENT} ${PREFIX}/bin
-	${INSTALL} -m 644 ${top_srcdir}/LICENSE ${PREFIX}/share/doc/${package}-${version}
-	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${PREFIX}/include/glite/security/proxyrenewal
-
-	${INSTALL} -m 755 ${top_srcdir}/config/startup ${PREFIX}/etc/init.d/glite-proxy-renewald
+	-mkdir -p ${DESTDIR}${PREFIX}${prefix}/bin ${DESTDIR}${PREFIX}${prefix}/${libdir} ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version} ${DESTDIR}${PREFIX}${sysconfdir}/init.d
+	${INSTALL} -m 755 ${lib_LTLIBRARIES} ${DESTDIR}${PREFIX}${prefix}/${libdir}
+	${INSTALL} -m 755 ${DAEMON} ${CLIENT} ${DESTDIR}${PREFIX}${prefix}/bin
+	${INSTALL} -m 644 ${top_srcdir}/LICENSE ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version}
+	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal
+	${INSTALL} -m 755 ${top_srcdir}/config/startup ${DESTDIR}${PREFIX}${sysconfdir}/init.d/glite-proxy-renewald
 
 
 clean:
