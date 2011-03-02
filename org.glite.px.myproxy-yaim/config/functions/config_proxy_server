@@ -60,8 +60,8 @@ cp ${X509_HOST_KEY} /etc/grid-security/myproxy/hostkey.pem
 chown myproxy:myproxy /etc/grid-security/myproxy/hostcert.pem
 chown myproxy:myproxy /etc/grid-security/myproxy/hostkey.pem
 
-MYPROXY_CONF=${GLITE_LOCATION_ETC}/myproxy-server.config
-MYPROXY_CONF_NEW=${GLITE_LOCATION_ETC}/myproxy-server.config_NEW
+MYPROXY_CONF=${GLITE_PX_LOCATION_ETC}/myproxy-server.config
+MYPROXY_CONF_NEW=${GLITE_PX_LOCATION_ETC}/myproxy-server.config_NEW
 
 
 # Special case where we are upgrading from the old style configuration.

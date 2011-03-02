@@ -1,13 +1,13 @@
 #!/bin/sh
 
-GLITE_LOCATION=${GLITE_LOCATION:-/opt/glite}
-GLITE_LOCATION_VAR=${GLITE_LOCATION_VAR:-/opt/glite/var}
+GLITE_PX_LOCATION=${GLITE_PX_LOCATION:-/opt/glite}
+GLITE_PX_LOCATION_VAR=${GLITE_PX_LOCATION_VAR:-/opt/glite/var}
 
 [ -f /etc/glite.conf ] && . /etc/glite.conf
-[ -f $GLITE_LOCATION/etc/glite-wms.conf ] && . $GLITE_LOCATION/etc/glite-wms.conf
+[ -f $GLITE_PX_LOCATION_ETC/glite-wms.conf ] && . $GLITE_PX_LOCATION_ETC/glite-wms.conf
 [ -f $HOME/.glite.conf ] && . $HOME/.glite.conf
 
-PROXY_REPOSITORY="$GLITE_LOCATION_VAR/spool/glite-renewd"
+PROXY_REPOSITORY="$GLITE_PX_LOCATION_VAR/spool/glite-renewd"
 
 unset creds
 
@@ -49,7 +49,7 @@ start()
 	fi
 	
 	su - $GLITE_USER -c "VOMS_USERCONF=$user_voms_config \
-		$GLITE_LOCATION/bin/glite-proxy-renewd \
+		$GLITE_PX_LOCATION/bin/glite-proxy-renewd \
 		-r $PROXY_REPOSITORY $creds -A" && echo " done"
 }
 

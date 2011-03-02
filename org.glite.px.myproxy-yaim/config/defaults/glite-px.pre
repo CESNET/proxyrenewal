@@ -1,0 +1,3 @@
+GLITE_PX_LOCATION='@glite_prefix@'
+GLITE_PX_LOCATION_ETC='@glite_etc@'
+GLITE_PX_LOCATION_VAR='@glite_var@'
