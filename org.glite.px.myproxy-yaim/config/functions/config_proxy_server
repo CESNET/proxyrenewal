@@ -42,7 +42,11 @@ return $?
 
 config_proxy_server_setenv () {
 
-return 0
+  yaimgridenv_set GLITE_PX_LOCATION "${GLITE_PX_LOCATION}"
+  yaimgridenv_set GLITE_PX_LOCATION_ETC "${GLITE_PX_LOCATION_ETC}"
+  yaimgridenv_set GLITE_PX_LOCATION_VAR "${GLITE_PX_LOCATION_VAR}"
+
+  return 0
 
 }
 
