@@ -27,6 +27,14 @@ all ${FILES}:
 	fi; \
 	sed -e 's:@glite_prefix@:${sysroot}${prefix}:' -e 's:@glite_etc@:${sysconfdir}:' -e "s:@glite_var@:$$glite_var:" $(top_srcdir)/config/defaults/glite-px.pre > glite-px.pre
 
+	# metapackage files
+	echo -e "${gLiteCopyrightText}\n\n${gLiteLicenseText}" > LICENSE
+	cp LICENSE COPYRIGHT
+	echo ${module.version}-${module.age} > node-version
+	echo ${platformArch} > arch
+	echo "NA" > service
+	echo "NA" > update
+
 install: ${FILES}
 	mkdir -p ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/functions/
 	mkdir -p ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/node-info.d
@@ -40,6 +48,8 @@ install: ${FILES}
 	install -m 0644 glite-px ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/node-info.d; \
 	install -m 0644 glite-px.pre ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/defaults
 	echo "$(package) $(module.version)-$(module.age)" > ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/etc/versions/$(package)
+	mkdir -p ${DESTDIR}${PREFIX}${yaim_prefix}/release/glite-PX
+	cp -fp LICENSE COPYRIGHT node-version arch service update ${DESTDIR}${PREFIX}${yaim_prefix}/release/glite-PX/
 
 stage:
 	$(MAKE) install PREFIX=${stagedir}
