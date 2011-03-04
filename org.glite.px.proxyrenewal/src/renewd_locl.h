@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) Members of the EGEE Collaboration. 2004-2010.
+ * See http://www.eu-egee.org/partners/ for details on the copyright
+ * holders.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef RENEWALD_LOCL_H
 #define RENEWALD_LOCL_H
 
@@ -6,6 +24,8 @@
 #include <globus_gsi_credential.h>
 #include <globus_gsi_proxy.h>
 #include <globus_gsi_cert_utils_constants.h>
+
+#include <glite/security/voms/voms_apic.h>
 
 #include "renewal.h"
 #include "renewal_core.h"
@@ -55,7 +75,7 @@ void
 watchdog_start(glite_renewal_core_context ctx);
 
 void
-glite_renewal_log(glite_renewal_core_context ctx, int dbg_level, const char *format, ...);
+edg_wlpr_Log(glite_renewal_core_context ctx, int dbg_level, const char *format, ...);
 
 int
 decode_record(glite_renewal_core_context ctx, char *line, proxy_record *record);
@@ -67,16 +87,20 @@ void
 free_record(glite_renewal_core_context ctx, proxy_record *record);
 
 int
-glite_renewal_load_proxy(glite_renewal_core_context ctx, const char *filename, X509 **cert, EVP_PKEY **privkey,
+load_proxy(glite_renewal_core_context ctx, const char *filename, X509 **cert, EVP_PKEY **privkey,
            STACK_OF(X509) **chain, globus_gsi_cred_handle_t *proxy);
 
 int
-glite_renewal_get_proxy_base_name(glite_renewal_core_context ctx, const char *file, char **subject);
+get_proxy_base_name(glite_renewal_core_context ctx, const char *file, char **subject);
 
 int
-glite_renewal_renew_voms_creds(glite_renewal_core_context ctx, const char *cur_file, const char *renewed_file, const char *new_file);
+renew_voms_creds(glite_renewal_core_context ctx, const char *cur_file, const char *renewed_file, const char *new_file);
 
 int
-glite_renewal_check_voms_attrs(glite_renewal_core_context ctx, const char *proxy);
+is_voms_cert(glite_renewal_core_context ctx, const char *proxy, int *present);
+
+int
+get_voms_cert(glite_renewal_core_context ctx,
+              X509 *cert, STACK_OF(X509) *chain, struct vomsdata **vd);
 
 #endif /* RENEWALD_LOCL_H */

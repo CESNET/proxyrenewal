@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) Members of the EGEE Collaboration. 2004-2010.
+ * See http://www.eu-egee.org/partners/ for details on the copyright
+ * holders.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "renewal_locl.h"
 #include "renewd_locl.h"
 
@@ -58,9 +76,14 @@ renew_proxy(glite_renewal_core_context ctx, proxy_record *record, char *basename
    }
 
    ret = glite_renewal_core_renew(ctx, server, port, repository_file, new_proxy);
-   if (ret)
+   if (ret) {
+      edg_wlpr_Log(ctx, LOG_ERR, "Failed to renew proxy %s: %s",
+                   repository_file,
+                   glite_renewal_core_get_err(ctx));
       goto end;
+   }
 
+   edg_wlpr_Log(ctx, LOG_DEBUG, "Proxy %s succesfully renewed", repository_file);
    ret = 0;
 
 end:
@@ -99,7 +122,7 @@ check_renewal(glite_renewal_core_context ctx, char *datafile, int force_renew, i
    strncpy(basename, datafile, sizeof(basename) - 1);
    p = basename + strlen(basename) - strlen(".data");
    if (strcmp(p, ".data") != 0) {
-      glite_renewal_log(ctx, LOG_ERR, "Meta filename doesn't end with '.data'");
+      edg_wlpr_Log(ctx, LOG_ERR, "Meta filename doesn't end with '.data'");
       return;
    }
    *p = '\0';
@@ -109,15 +132,15 @@ check_renewal(glite_renewal_core_context ctx, char *datafile, int force_renew, i
 
    meta_fd = fopen(datafile, "r");
    if (meta_fd == NULL) {
-      glite_renewal_log(ctx, LOG_ERR, "Cannot open meta file %s (%s)",
+      edg_wlpr_Log(ctx, LOG_ERR, "Cannot open meta file %s (%s)",
 	           datafile, strerror(errno));
       return;
    }
 
    current_time = time(NULL);
-   glite_renewal_log(ctx, LOG_DEBUG, "Reading metafile %s", datafile);
 
    while (fgets(line, sizeof(line), meta_fd) != NULL) {
+      glite_renewal_core_reset_err(ctx);
       free_record(ctx, &record);
       p = strchr(line, '\n');
       if (p)
@@ -158,10 +181,10 @@ check_renewal(glite_renewal_core_context ctx, char *datafile, int force_renew, i
    if (num > 0) {
       ret = edg_wlpr_RequestSend(&request, &response);
       if (ret != 0)
-	 glite_renewal_log(ctx, LOG_ERR,
+	 edg_wlpr_Log(ctx, LOG_ERR,
 	              "Failed to send update request to master (%d)", ret);
       else if (response.response_code != 0)
-	 glite_renewal_log(ctx, LOG_ERR,
+	 edg_wlpr_Log(ctx, LOG_ERR,
 	              "Master failed to update database (%d)", response.response_code);
 
       /* delete all tmp proxy files which may survive */
@@ -188,19 +211,17 @@ int renewal(glite_renewal_core_context ctx, int force_renew, int *num_renewed)
    FILE *fd;
    int num = 0;
 
-   glite_renewal_log(ctx, LOG_DEBUG, "Starting renewal process");
-
    *num_renewed = 0;
 
    if (chdir(repository)) {
-      glite_renewal_log(ctx, LOG_ERR, "Cannot access repository directory %s (%s)",
+      edg_wlpr_Log(ctx, LOG_ERR, "Cannot access repository directory %s (%s)",
 	           repository, strerror(errno));
       return errno;
    }
 
    dir = opendir(repository);
    if (dir == NULL) {
-      glite_renewal_log(ctx, LOG_ERR, "Cannot open repository directory %s (%s)",
+      edg_wlpr_Log(ctx, LOG_ERR, "Cannot open repository directory %s (%s)",
 	           repository, strerror(errno));
       return errno;
    }
@@ -213,7 +234,7 @@ int renewal(glite_renewal_core_context ctx, int force_renew, int *num_renewed)
 	 continue;
       fd = fopen(file->d_name, "r");
       if (fd == NULL) {
-	 glite_renewal_log(ctx, LOG_ERR, "Cannot open meta file %s (%s)",
+	 edg_wlpr_Log(ctx, LOG_ERR, "Cannot open meta file %s (%s)",
 	              file->d_name, strerror(errno));
 	 continue;
       }
@@ -222,7 +243,8 @@ int renewal(glite_renewal_core_context ctx, int force_renew, int *num_renewed)
       fclose(fd);
    }
    closedir(dir);
-   glite_renewal_log(ctx, LOG_DEBUG, "Finishing renewal process");
+   edg_wlpr_Log(ctx, LOG_DEBUG,
+                "Renewal attempt finished, %u proxies renewed", *num_renewed);
    return 0;
 }
 
@@ -251,6 +273,6 @@ watchdog_start(glite_renewal_core_context ctx)
        renewal(ctx, force_renewal, &num);
        count += num;
    }
-   glite_renewal_log(ctx, LOG_DEBUG, "Terminating after %d renewal attempts", count);
+   edg_wlpr_Log(ctx, LOG_DEBUG, "Terminating after %d renewal attempts", count);
    exit(0);
 }

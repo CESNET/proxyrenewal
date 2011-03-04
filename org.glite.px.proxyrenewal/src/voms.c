@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) Members of the EGEE Collaboration. 2004-2010.
+ * See http://www.eu-egee.org/partners/ for details on the copyright
+ * holders.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+static const char rcsid[] = "$Id$";
+
 #include "renewal_locl.h"
 #include "renewd_locl.h"
 
@@ -25,39 +45,39 @@ generate_proxy(glite_renewal_core_context ctx, globus_gsi_cred_handle_t cur_prox
 
    result = globus_gsi_proxy_handle_init(&proxy_handle, NULL);
    if (result) {
-      glite_renewal_log(ctx, LOG_ERR, "globus_gsi_proxy_handle_init() failed\n");
+      glite_renewal_core_set_err(ctx, "globus_gsi_proxy_handle_init() failed");
       goto end;
    }
 
    result = globus_gsi_cred_get_key(cur_proxy, &cur_proxy_priv_key);
    if (result) {
-      glite_renewal_log(ctx, LOG_ERR, "globus_gsi_cred_get_key() failed\n");
+      glite_renewal_core_set_err(ctx, "globus_gsi_cred_get_key() failed");
       goto end;
    }
 
    /* Create and sign a new proxy */
    result = globus_gsi_cred_get_cert_type(cur_proxy, &proxy_type);
    if (result) {
-      glite_renewal_log(ctx, LOG_ERR, "globus_gsi_cred_get_cert_type() failed\n");
+      glite_renewal_core_set_err(ctx, "globus_gsi_cred_get_cert_type() failed");
       goto end;
    }
 
    result = globus_gsi_proxy_handle_set_type(proxy_handle, proxy_type);
    if (result) {
-      glite_renewal_log(ctx, LOG_ERR, "globus_gsi_proxy_handle_set_type() failed\n");
+      glite_renewal_core_set_err(ctx, "globus_gsi_proxy_handle_set_type() failed");
       goto end;
    }
 
    result = globus_gsi_proxy_create_signed(proxy_handle, cur_proxy, &proxy);
    if (result) {
-      glite_renewal_log(ctx, LOG_ERR, "globus_gsi_proxy_handle_init() failed\n");
+      glite_renewal_core_set_err(ctx, "globus_gsi_proxy_handle_init() failed");
       goto end;
    }
 
    /* Get the new proxy */
    result = globus_gsi_cred_get_cert(proxy, &new_cert);
    if (result) {
-      glite_renewal_log(ctx, LOG_ERR, "globus_gsi_cred_get_cert() failed\n");
+      glite_renewal_core_set_err(ctx, "globus_gsi_cred_get_cert() failed");
       goto end;
    }
 
@@ -77,7 +97,7 @@ generate_proxy(glite_renewal_core_context ctx, globus_gsi_cred_handle_t cur_prox
    /* And put the cert back, older one is unallocated by the function */
    result = globus_gsi_cred_set_cert(proxy, voms_cert);
    if (result) {
-      glite_renewal_log(ctx, LOG_ERR, "globus_gsi_cred_set_cert() failed\n");
+      glite_renewal_core_set_err(ctx, "globus_gsi_cred_set_cert() failed");
       goto end;
    }
 
@@ -98,7 +118,7 @@ my_VOMS_Export(glite_renewal_core_context ctx, void *buf, int buf_len, X509_EXTE
    p = pp = buf;
    ac = d2i_AC(NULL, &p, buf_len+1);
    if (ac == NULL) {
-      glite_renewal_log(ctx, LOG_ERR, "d2i_AC() failed\n");
+      glite_renewal_core_set_err(ctx, "d2i_AC() failed");
       return 1;
    }
 
@@ -112,34 +132,46 @@ my_VOMS_Export(glite_renewal_core_context ctx, void *buf, int buf_len, X509_EXTE
 static int
 create_voms_command(glite_renewal_core_context ctx, struct vomsdata *vd, struct voms **voms_cert, char **command)
 {
-   int voms_error, ret;
+   int ret, voms_err, i;
    struct data **attribs;
-
-#if 0
-   VOMS_ResetOrder(vd, &voms_error);
-   for (i = 2; i < argc; i++) {
-      ret = VOMS_Ordering(argv[i], vd, &voms_error);
-      if (ret == 0) {
-	 glite_renewal_log(ctx, LOG_ERR, "VOMS_Ordering() failed\n"); 
-	 return 1;
-      }
-   }
-#endif
+   char *str = NULL;
+   char *role, *cmd = NULL, *tmp  = NULL;
 
    if (voms_cert == NULL || *voms_cert == NULL || (*voms_cert)->std == NULL) {
-      glite_renewal_log(ctx, LOG_ERR, "Invalid VOMS certificate\n");
+      glite_renewal_core_set_err(ctx, "Invalid VOMS certificate");
       return 1;
    }
 
+   VOMS_ResetOrder(vd, &voms_err);
    attribs = (*voms_cert)->std;
+   i = 0;
+   while (attribs && attribs[i]) {
+      role = NULL;
+      if ((attribs[i])->role && strcmp ((attribs[i])->role, "NULL") != 0 &&
+          strcmp((attribs[i])->role, "") != 0)
+         role = (attribs[i])->role;
 
-   if (strcmp (attribs[0]->role, "NULL") == 0 )
-      ret = asprintf(command, "G%s", attribs[0]->group);
-   else
-      ret = asprintf(command, "B%s:%s", attribs[0]->group, attribs[0]->role);
+      asprintf(&str, "%s%s%s",
+               (attribs[i])->group,
+               (role) ? ":" : "",
+               (role) ? role : "");
 
-end:
+      if (ctx->order_attributes) 
+         VOMS_Ordering(str, vd, &voms_err);
 
+      asprintf(&tmp, "%s%s%s%s",
+               (cmd) ? cmd : "",
+               (cmd) ? "," : "",
+               (role) ? "B" : "G",
+               str);
+      cmd = tmp;
+      
+      free(str);
+      str = NULL;
+      i++;
+   }
+
+   *command = cmd;
    return 0;
 }
 
@@ -147,38 +179,87 @@ static int
 renew_voms_cert(glite_renewal_core_context ctx, struct vomsdata *vd, struct voms **voms_cert, 
                 char **buf, size_t *buf_len)
 {
-   int voms_error = 0, i, ret, voms_version;
+   int voms_error = 0, ret, voms_version, port = -1;
    struct contactdata **voms_contacts = NULL;
+   struct contactdata **c;
    char *command = NULL;
-
-   voms_contacts = VOMS_FindByVO(vd, (*voms_cert)->voname, ctx->voms_conf, NULL, &voms_error);
-
-   if (voms_contacts == NULL) {
-      glite_renewal_log(ctx, LOG_ERR, "VOMS_FindByVO() failed\n");
-      return 1;
-   }
+   char *err_msg, *voms_server = NULL, *p;
 
    ret = create_voms_command(ctx, vd, voms_cert, &command);
+   if (ret)
+      return ret;
 
    /* XXX the lifetime should be taken from the older proxy */
-   ret = VOMS_SetLifetime(60*60*12, vd, &voms_error);
+   VOMS_SetLifetime(60*60*12, vd, &voms_error);
 
-   /* XXX iterate over all servers on the list on errors */
-   ret = VOMS_ContactRaw(voms_contacts[0]->host, voms_contacts[0]->port,
-	                 voms_contacts[0]->contact, command, 
-			 (void**) buf, buf_len, &voms_version,
-			 vd, &voms_error);
-   if (ret == 0) {
-      glite_renewal_log(ctx, LOG_ERR, "VOMS_Contact() failed\n");
-      return 1;
+   if ((*voms_cert)->uri != NULL) {
+      voms_server = strdup((*voms_cert)->uri);
+      if (voms_server == NULL) {
+         glite_renewal_core_set_err(ctx, "Not enough memory");
+         ret = 1;
+         goto end;
+      }
+
+      p = strchr(voms_server, ':');
+      if (p) {
+         *p++ = '\0';
+         port = atoi(p);
+      }
    }
 
+   /* first try to contact the VOMS server that issued the original AC */
+   if (voms_server && port != -1 && (*voms_cert)->server != NULL) {
+      ret = VOMS_ContactRaw(voms_server, port, (*voms_cert)->server,
+                            command, (void**) buf, buf_len, &voms_version,
+			    vd, &voms_error);
+      if (ret != 0) {
+         /* success, let's finish */
+         ret = 0;
+         goto end;
+      }
+      err_msg = VOMS_ErrorMessage(vd, voms_error, NULL, 0);
+      glite_renewal_core_set_err(ctx,
+                   "Failed to contact VOMS server %s of VO %s: %s",
+                   voms_server, (*voms_cert)->voname, err_msg);
+      free(err_msg);
+   }
+
+   /* if the original URI doesn't work, try VOMS servers given in local
+      configuration */
+   voms_contacts = VOMS_FindByVO(vd, (*voms_cert)->voname, ctx->voms_conf, NULL, &voms_error);
+   if (voms_contacts == NULL) {
+      err_msg = VOMS_ErrorMessage(vd, voms_error, NULL, 0);
+      glite_renewal_core_set_err(ctx, "Can't find configuration for VO %s: %s",
+		   (*voms_cert)->voname, err_msg);
+      free(err_msg);
+      ret = 1;
+      goto end;
+   }
+
+   ret = 0;
+   for (c = voms_contacts; c && *c; c++) {
+       ret = VOMS_ContactRaw((*c)->host, (*c)->port, (*c)->contact,
+                             command, (void**) buf, buf_len, &voms_version,
+			     vd, &voms_error);
+       if (ret != 0) {
+          /* success, let's finish */
+          break;
+       }
+       err_msg = VOMS_ErrorMessage(vd, voms_error, NULL, 0);
+       glite_renewal_core_set_err(ctx,
+                    "Failed to contact VOMS server %s of VO %s: %s",
+                    (*c)->host, (*voms_cert)->voname, err_msg);
+       free(err_msg);
+   }
+   ret = (ret == 0) ? -1 : 0;
+
+end:
    VOMS_DeleteContacts(voms_contacts);
 
    if (command)
       free(command);
 
-   return 0;
+   return ret;
 }
 
 static int
@@ -188,7 +269,7 @@ renew_voms_certs(glite_renewal_core_context ctx, const char *cur_file, const cha
    globus_gsi_cred_handle_t new_proxy = NULL;
    struct vomsdata *vd = NULL;
    struct voms **voms_cert = NULL;
-   int voms_err, ret;
+   int ret;
    X509 *cert = NULL;
    STACK_OF(X509) *chain = NULL;
    char *buf = NULL;
@@ -202,34 +283,14 @@ renew_voms_certs(glite_renewal_core_context ctx, const char *cur_file, const cha
    setenv("X509_USER_CERT", renewed_file, 1);
    setenv("X509_USER_KEY", renewed_file, 1);
 
-   ret = glite_renewal_load_proxy(ctx, cur_file, &cert, NULL, &chain, &cur_proxy);
+   ret = load_proxy(ctx, cur_file, &cert, NULL, &chain, &cur_proxy);
    if (ret)
       goto end;
 
-   vd = VOMS_Init(NULL, NULL);
-   if (vd == NULL) {
-      glite_renewal_log(ctx, LOG_ERR, "VOMS_Init() failed\n");
-      return 1;
-   }
+   ret = get_voms_cert(ctx, cert, chain, &vd);
+   if (ret)
+      goto end;
 
-   ret = VOMS_Retrieve(cert, chain, RECURSE_CHAIN, vd, &voms_err);
-   if (ret == 0) {
-      if (voms_err == VERR_NOEXT) {
-	 /* no VOMS cred, no problem; continue */
-	 /* XXX this part shouldn't be reachable, this call is only called
-	  * if the proxy does contain VOMS attributes */
-	 glite_renewal_log(ctx, LOG_ERR, "No VOMS attributes found in proxy %s\n", cur_file);
-	 ret = 0;
-	 goto end;
-      } else {
-	 glite_renewal_log(ctx, LOG_ERR, "Cannot get VOMS certificate(s) from proxy");
-	 ret = 1;
-	 goto end;
-      }
-   }
-
-   /* XXX make sure this loop can really work for multiple voms certificates
-    * embedded in the proxy */
    for (voms_cert = vd->data; voms_cert && *voms_cert; voms_cert++) {
       char *tmp, *ptr;
       size_t tmp_len;
@@ -257,7 +318,7 @@ renew_voms_certs(glite_renewal_core_context ctx, const char *cur_file, const cha
    if (ret)
       goto end;
 
-   ret = glite_renewal_load_proxy(ctx, renewed_file, NULL, NULL, NULL, &new_proxy);
+   ret = load_proxy(ctx, renewed_file, NULL, NULL, NULL, &new_proxy);
    if (ret)
       goto end;
 
@@ -288,46 +349,79 @@ end:
 }
 
 int
-glite_renewal_renew_voms_creds(glite_renewal_core_context ctx, const char *cur_file, const char *renewed_file, const char *new_file)
+renew_voms_creds(glite_renewal_core_context ctx, const char *cur_file, const char *renewed_file, const char *new_file)
 {
    return renew_voms_certs(ctx, cur_file, renewed_file, new_file);
 }
 
 int
-glite_renewal_check_voms_attrs(glite_renewal_core_context ctx, const char *proxy)
+is_voms_cert(glite_renewal_core_context ctx,
+	      const char *file,
+              int *present)
 {
-   int ret, voms_err, present;
-   X509 *cert = NULL;
+   struct vomsdata *voms_info = NULL;
    STACK_OF(X509) *chain = NULL;
-   struct vomsdata *vd = NULL;
+   X509 *cert = NULL;
+   int ret;
+   
+   *present = 0;
 
-   ret = glite_renewal_load_proxy(ctx, proxy, &cert, NULL, &chain, NULL);
+   ret = load_proxy(ctx, file, &cert, NULL, &chain, NULL);
    if (ret)
-      return 0;
+      return ret;
 
-   vd = VOMS_Init(NULL, NULL);
-   if (vd == NULL) {
-      present = 0;
+   ret = get_voms_cert(ctx, cert, chain, &voms_info);
+   if (ret) 
       goto end;
-   }
 
-   ret = VOMS_Retrieve(cert, chain, RECURSE_CHAIN, vd, &voms_err);
-   if (ret == 0) {
-      present = 0;
-      goto end;
-   }
-
-   present = 1;
+   *present = (voms_info != NULL);
 
 end:
-   if (cert)
-      X509_free(cert);
-   if (chain)
-      sk_X509_pop_free(chain, X509_free);
-   if (vd)
-      VOMS_Destroy(vd);
+   if (voms_info)
+      VOMS_Destroy(voms_info);
+   sk_X509_pop_free(chain, X509_free);
+   X509_free(cert);
 
-   return present;
+   return ret;
+}
+
+int
+get_voms_cert(glite_renewal_core_context ctx,
+              X509 *cert, STACK_OF(X509) *chain, struct vomsdata **vd)
+{
+   struct vomsdata *voms_info = NULL;
+   int voms_err, ret, voms_ret;
+
+   /* XXX pass the vomsdir and cadir parameters */
+   voms_info = VOMS_Init(NULL, NULL);
+   if (voms_info == NULL) {
+      glite_renewal_core_set_err(ctx, "VOMS_Init() failed, probably voms dir was not specified");
+      return EDG_WLPR_ERROR_VOMS;
+   }
+
+   VOMS_SetVerificationType(VERIFY_NONE, voms_info, &voms_err);
+
+   ret = 0;
+   voms_ret = VOMS_Retrieve(cert, chain, RECURSE_CHAIN, voms_info, &voms_err);
+   if (voms_ret == 0) {
+      if (voms_err == VERR_NOEXT) {
+         voms_info = NULL;
+         ret = 0;
+      } else {
+         char *err_msg = VOMS_ErrorMessage(voms_info, voms_err, NULL, 0);
+         glite_renewal_core_set_err(ctx, "Failed to retrieve VOMS attributes: %s",
+                      err_msg);
+         free(err_msg);
+         ret = -1; /* XXX */
+      }
+   }
+
+   if (ret == 0 && vd != NULL)
+      *vd = voms_info;
+   else
+      VOMS_Destroy(voms_info);
+
+   return ret;
 }
 
 #if 0
@@ -345,7 +439,7 @@ main(int argc, char *argv[])
 
    if (globus_module_activate(GLOBUS_GSI_PROXY_MODULE) != GLOBUS_SUCCESS ||
        globus_module_activate(GLOBUS_GSI_CERT_UTILS_MODULE) != GLOBUS_SUCCESS) {
-       glite_renewal_log(ctx, LOG_ERR, "[%d]: Unable to initialize Globus modules\n", getpid());
+       glite_renewal_core_set_err(ctx, "Unable to initialize Globus modules");
        return 1;
    }
 

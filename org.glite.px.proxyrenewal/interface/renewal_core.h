@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) Members of the EGEE Collaboration. 2004-2010.
+ * See http://www.eu-egee.org/partners/ for details on the copyright
+ * holders.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef RENEWAL_CORE_H
 #define RENEWAL_CORE_H
 
@@ -20,6 +38,7 @@ typedef struct glite_renewal_core_context_data {
   glite_renewal_log_dst log_dst;
   char *err_message;
   char *voms_conf;
+  int order_attributes;
 } glite_renewal_core_context_data;
 
 typedef struct glite_renewal_core_context_data *glite_renewal_core_context;
@@ -54,6 +73,18 @@ glite_renewal_core_renew(glite_renewal_core_context context,
 			 unsigned int myproxy_port,
 			 const char *current_proxy,
 			 char **new_proxy);
+
+void
+glite_renewal_core_set_err(glite_renewal_core_context ctx, const char *format, ...);
+
+void
+glite_renewal_core_update_err(glite_renewal_core_context ctx, const char *format, ...);
+
+char *
+glite_renewal_core_get_err(glite_renewal_core_context ctx);
+
+void
+glite_renewal_core_reset_err(glite_renewal_core_context ctx);
 
 #ifdef __cplusplus
 }
