@@ -113,7 +113,15 @@ CLIENT:=glite-proxy-renew
 EXAMPLES := renew_core
 
 default: all
-compile all: ${lib_LTLIBRARIES} ${DAEMON} ${CLIENT} 
+compile all: startup ${lib_LTLIBRARIES} ${DAEMON} ${CLIENT} 
+
+startup: ${top_srcdir}/config/startup
+	glite_var="${localstatedir}/glite"; \
+	if echo "${localstatedir}" | grep 'glite'>/dev/null; then \
+		glite_var="${localstatedir}"; \
+	fi; \
+	sed -e 's:@glite_prefix@:${sysroot}${prefix}:' -e 's:@glite_etc@:${sysconfdir}:' -e "s:@glite_var@:$$glite_var:" $< > $@
+	chmod +x $@
 
 ifeq (${thrflavour},)
 ${LIB}: ${LIBOBJ}
@@ -177,10 +185,10 @@ install:
 	${INSTALL} -m 755 ${DAEMON} ${CLIENT} ${DESTDIR}${PREFIX}${prefix}/bin
 	${INSTALL} -m 644 ${top_srcdir}/LICENSE ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version}
 	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal
-	${INSTALL} -m 755 ${top_srcdir}/config/startup ${DESTDIR}${PREFIX}${sysconfdir}/init.d/glite-proxy-renewald
+	${INSTALL} -m 755 startup ${DESTDIR}${PREFIX}${sysconfdir}/init.d/glite-proxy-renewald
 
 
 clean:
-	$(RM) ${lib_LTLIBRARIES} $(DAEMON) $(CLIENT) $(EXAMPLES) *.o *.lo core 
+	$(RM) ${lib_LTLIBRARIES} $(DAEMON) $(CLIENT) $(EXAMPLES) *.o *.lo core startup
 
 .PHONY: default all compile examples check stage dist distsrc distbin install clean
