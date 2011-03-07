@@ -11,3 +11,7 @@
 - Modifications for build with EMI
 - Configuration adjusted for EMI
 
+4.1.2-1
+- product-specific GLITE_*_LOCATION* variables
+- distinguish yaim prefix and glite prefix
+
