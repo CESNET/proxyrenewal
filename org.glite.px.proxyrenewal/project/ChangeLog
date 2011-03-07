@@ -13,4 +13,6 @@
 
 1.3.14-1
 - Transfer of changes that were not taken over from glite-security-proxyrenewal by mistake
+- Fixes in build
+- Proper build-time defines for threaded routines
 
