@@ -53,6 +53,7 @@ typedef struct {
    char *myproxy_server;
    time_t end_time;
    time_t next_renewal;
+   char *fqans;
 } proxy_record;
 
 /* commands */
@@ -78,7 +79,7 @@ void
 edg_wlpr_Log(glite_renewal_core_context ctx, int dbg_level, const char *format, ...);
 
 int
-decode_record(glite_renewal_core_context ctx, char *line, proxy_record *record);
+decode_record(glite_renewal_core_context ctx, const char *basename, char *line, proxy_record *record);
 
 int
 encode_record(glite_renewal_core_context ctx, proxy_record *record, char **line);
@@ -102,5 +103,8 @@ is_voms_cert(glite_renewal_core_context ctx, const char *proxy, int *present);
 int
 get_voms_cert(glite_renewal_core_context ctx,
               X509 *cert, STACK_OF(X509) *chain, struct vomsdata **vd);
+
+char *
+get_voms_fqans(glite_renewal_core_context ctx, const char *file);
 
 #endif /* RENEWALD_LOCL_H */

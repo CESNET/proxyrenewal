@@ -96,7 +96,7 @@ end:
 static void
 check_renewal(glite_renewal_core_context ctx, char *datafile, int force_renew, int *num_renewed)
 {
-   char line[1024];
+   char line[EDG_WLPR_SIZE];
    proxy_record record;
    char *p;
    int ret, i;
@@ -145,7 +145,7 @@ check_renewal(glite_renewal_core_context ctx, char *datafile, int force_renew, i
       p = strchr(line, '\n');
       if (p)
 	 *p = '\0';
-      ret = decode_record(ctx, line, &record);
+      ret = decode_record(ctx, basename, line, &record);
       if (ret)
 	 continue; /* XXX exit? */
       if (record.jobids.len == 0) /* no jobid registered for this proxy */
@@ -244,7 +244,7 @@ int renewal(glite_renewal_core_context ctx, int force_renew, int *num_renewed)
    }
    closedir(dir);
    edg_wlpr_Log(ctx, LOG_DEBUG,
-                "Renewal attempt finished, %u proxies renewed", *num_renewed);
+                "Renewal attempt finished, %u attempts performed", *num_renewed);
    return 0;
 }
 

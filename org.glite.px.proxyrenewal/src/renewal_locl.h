@@ -85,7 +85,8 @@ typedef enum {
 
 #define EDG_WLPR_VERSION "EDG Proxy Renewal 1.0"
 
-#define MAX_PROXIES 4 /* max. number of jobids sharing one proxy */
+#define MAX_PROXIES 10000 /* max. number of jobids sharing one proxy */
+#define EDG_WLPR_SIZE 2000000 
 
 #define RENEWAL_CLOCK_SKEW (5 * 60)
 

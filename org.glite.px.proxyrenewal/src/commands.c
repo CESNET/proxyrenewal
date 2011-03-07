@@ -35,10 +35,10 @@ static char *
 strmd5(glite_renewal_core_context ctx, const char *s, unsigned char *digest);
 
 static int
-get_record_ext(glite_renewal_core_context ctx, FILE *fd, proxy_record *record, int *last_used_suffix);
+get_record_ext(glite_renewal_core_context ctx, FILE *fd, const char *basename, proxy_record *record, int *last_used_suffix);
 
 static int
-get_record(glite_renewal_core_context ctx, FILE *fd, proxy_record *record);
+get_record(glite_renewal_core_context ctx, FILE *fd, const char *basename, proxy_record *record);
 
 static int
 store_record(glite_renewal_core_context ctx, char *basename, proxy_record *record);
@@ -51,9 +51,6 @@ copy_file(glite_renewal_core_context ctx, char *src, char *dst);
 
 static int
 get_base_filename(glite_renewal_core_context ctx, char *proxy_file, char **basefilename);
-
-int
-decode_record(glite_renewal_core_context ctx, char *line, proxy_record *record);
 
 int
 encode_record(glite_renewal_core_context ctx, proxy_record *record, char **line);
@@ -383,6 +380,20 @@ end:
 }
 
 void
+free_prd_list(glite_renewal_core_context ctx, prd_list *list)
+{
+    int i;
+
+    if (list == NULL || list->val == NULL)
+	return;
+    for (i = 0; i < list->len; i++)
+	free(list->val[i]);
+    free(list->val);
+    list->val = NULL;
+    list->len = 0;
+}
+
+void
 free_record(glite_renewal_core_context ctx, proxy_record *record)
 {
    int i;
@@ -391,11 +402,9 @@ free_record(glite_renewal_core_context ctx, proxy_record *record)
       return;
    if (record->myproxy_server)
       free(record->myproxy_server);
-   if (record->jobids.val) {
-      for (i = 0; i < record->jobids.len; i++)
-	 free(record->jobids.val[i]);
-      free(record->jobids.val);
-   }
+   if (record->fqans)
+       free(record->fqans);
+   free_prd_list(ctx, &record->jobids);
    memset(record, 0, sizeof(*record));
 }
 
@@ -413,7 +422,65 @@ realloc_prd_list(glite_renewal_core_context ctx, prd_list *list)
 }
 
 static int
-get_jobids(glite_renewal_core_context ctx, const char *msg, const size_t msg_len, proxy_record *record)
+load_jobids(glite_renewal_core_context ctx, const char *basename, proxy_record *record)
+{
+   char file[FILENAME_MAX];
+   char line[512], *p;
+   FILE *f;
+   int ret;
+
+   snprintf(file, sizeof(file), "%s.%u.jobs", basename, record->suffix);
+   f = fopen(file, "r");
+   if (f == NULL)
+       return -1;
+
+   free_prd_list(ctx, &record->jobids);
+
+   while (fgets(line, sizeof(line), f) != NULL) {
+       p = strchr(line, '\n');
+       if (p == NULL) {
+	   free_prd_list(ctx, &record->jobids);
+	   fclose(f);
+	   return -1;
+       }
+       *p = '\0';
+
+       ret = realloc_prd_list(ctx, &record->jobids);
+       if (ret) {
+	   free_prd_list(ctx, &record->jobids);
+	   fclose(f);
+	   return -1;
+       }
+       record->jobids.val[record->jobids.len - 1] = strdup(line);
+   }
+
+   fclose(f);
+   return 0;
+}
+
+static int
+save_jobids(glite_renewal_core_context ctx, const char *basename, proxy_record *record)
+{
+    FILE *f;
+    char file[FILENAME_MAX];
+    int i;
+
+    snprintf(file, sizeof(file), "%s.%u.jobs", basename, record->suffix);
+    f = fopen(file, "w");
+    if (f == NULL) {
+	edg_wlpr_Log(ctx, LOG_ERR, "Failed to open jobids index (%s)", strerror(errno));
+	return -1;
+    }
+    for (i = 0; i < record->jobids.len; i++) {
+	fputs(record->jobids.val[i], f);
+	fputc('\n', f);
+    }
+    fclose(f);
+}
+
+
+static int
+get_jobids(glite_renewal_core_context ctx, const char *basename, const char *msg, const size_t msg_len, proxy_record *record)
 {
    int index = 0;
    int ret;
@@ -421,6 +488,11 @@ get_jobids(glite_renewal_core_context ctx, const char *msg, const size_t msg_len
    char **tmp;
 
    memset(&record->jobids, 0, sizeof(record->jobids));
+
+   ret = load_jobids(ctx, basename, record);
+   if (ret == 0)
+       return 0;
+
    while ((ret = edg_wlpr_GetToken(msg, msg_len, "jobid=", SEPARATORS,
 	                           index, &value)) == 0) {
       tmp = realloc(record->jobids.val, (record->jobids.len + 1) * sizeof(*tmp));
@@ -462,7 +534,7 @@ edg_wlpr_GetTokenInt(glite_renewal_core_context ctx, const char *msg, const size
 }
 
 int
-decode_record(glite_renewal_core_context ctx, char *line, proxy_record *record)
+decode_record(glite_renewal_core_context ctx, const char *basename, char *line, proxy_record *record)
 {
    /* line must be ended with '\0' */
    int ret;
@@ -495,6 +567,8 @@ decode_record(glite_renewal_core_context ctx, char *line, proxy_record *record)
    ret = edg_wlpr_GetTokenInt(ctx, line, len, "voms_exts=", SEPARATORS, 0,
 	 		      &record->voms_exts);
 
+   edg_wlpr_GetToken(line, len, "fqans=", SEPARATORS, 0, &record->fqans);
+
    ret = edg_wlpr_GetToken(line, len, "server=", SEPARATORS, 0,
 	 		   &record->myproxy_server);
    if (ret)
@@ -510,7 +584,7 @@ decode_record(glite_renewal_core_context ctx, char *line, proxy_record *record)
    if (ret)
       goto end;
 
-   ret = get_jobids(ctx, line, len, record);
+   ret = get_jobids(ctx, basename, line, len, record);
    if (ret)
       goto end;
 
@@ -532,21 +606,11 @@ encode_record(glite_renewal_core_context ctx, proxy_record *record, char **line)
 	   record->suffix, record->unique, record->voms_exts,
 	   (record->myproxy_server) ? record->myproxy_server : "",
 	   record->next_renewal, record->end_time);
-   for (i = 0; i < record->jobids.len; i++)
-      /* alloc space for string ", jobid=<jobid>" */
-      jobids_len += 2 + strlen("jobid=") + strlen(record->jobids.val[i]);
-
-   *line = calloc(1, strlen(tmp_line) + jobids_len + 1);
-   if (*line == NULL)
-      return ENOMEM;
-
-   strcat(*line, tmp_line);
-   memset(tmp_line, 0, sizeof(tmp_line));
-
-   for (i = 0; i < record->jobids.len; i++) {
-      snprintf(tmp_line, sizeof(tmp_line), ", jobid=%s", record->jobids.val[i]);
-      strcat(*line, tmp_line);
+   if (record->fqans) {
+       strncat(tmp_line, ", fqans=", sizeof(tmp_line));
+       strncat(tmp_line, record->fqans, sizeof(tmp_line));
    }
+   *line = strdup(tmp_line);
 
    return 0;
 }
@@ -554,10 +618,11 @@ encode_record(glite_renewal_core_context ctx, proxy_record *record, char **line)
 /* Get proxy record from the index file. If no suffix is defined return a free 
    record with the smallest index */
 static int
-get_record_ext(glite_renewal_core_context ctx, FILE *fd, proxy_record *record, int *last_used_suffix)
+get_record_ext(glite_renewal_core_context ctx, FILE *fd, const char *basename, proxy_record *record, int *last_used_suffix)
 {
-   char line[1024];
+   char line[EDG_WLPR_SIZE];
    int last_suffix = -1;
+   int first_unused = -1;
    int ret;
    char *p;
    proxy_record tmp_record;
@@ -574,23 +639,15 @@ get_record_ext(glite_renewal_core_context ctx, FILE *fd, proxy_record *record, i
       p = strchr(line, '\n');
       if (p)
 	 *p = '\0';
-      ret = decode_record(ctx, line, &tmp_record);
+      ret = decode_record(ctx, basename, line, &tmp_record);
       if (ret) {
 	 edg_wlpr_Log(ctx, LOG_WARNING, "Skipping invalid entry at line %d", line_num);
 	 continue;
       }
       if (record->suffix >= 0) {
 	 if (record->suffix == tmp_record.suffix) {
-	    record->suffix = tmp_record.suffix;
-	    record->jobids.len = tmp_record.jobids.len;
-	    record->jobids.val = tmp_record.jobids.val;
-	    record->unique = tmp_record.unique;
-	    record->voms_exts = tmp_record.voms_exts;
-	    if (record->myproxy_server)
-	       free(record->myproxy_server);
-	    record->myproxy_server = tmp_record.myproxy_server;
-	    record->end_time = tmp_record.end_time;
-	    record->next_renewal = tmp_record.next_renewal;
+	    free_record(ctx, record);
+	    *record = tmp_record;
 	    return 0;
 	 } else
 	    continue;
@@ -600,28 +657,30 @@ get_record_ext(glite_renewal_core_context ctx, FILE *fd, proxy_record *record, i
 
       /* if no particular suffix was specified get the first free record 
 	 available */
-      if (tmp_record.jobids.len >= MAX_PROXIES || tmp_record.unique || 
-	  tmp_record.voms_exts)
+      if (tmp_record.jobids.len >= MAX_PROXIES || tmp_record.unique)
 	 continue;
 
       if (tmp_record.jobids.len == 0) {
-	 /* no jobs registered for this record, so use it initialized with the
-	  * parameters (currently myproxy location) provided by user */
-	 record->suffix = tmp_record.suffix;
-	 record->next_renewal = record->end_time = 0;
-	 free_record(ctx, &tmp_record);
-	 return 0;
+	  if (first_unused == -1)
+	      first_unused = tmp_record.suffix;
+	  continue;
       }
 
-      /* Proxies with VOMS attributes require a separate record, which is not
-       * shared with another proxies. The same applies it the unique flag was
-       * set by the caller */
-      if (record->voms_exts || record->unique)
+      if (record->unique)
 	 continue;
 
-      if (tmp_record.jobids.len > 0 && record->myproxy_server &&
-	  strcmp(record->myproxy_server, tmp_record.myproxy_server) != 0)
-	 continue;
+      if (tmp_record.jobids.len > 0) {
+	  if (record->myproxy_server &&
+		  strcmp(record->myproxy_server, tmp_record.myproxy_server) != 0)
+	      continue;
+
+	  if (record->fqans == NULL || tmp_record.fqans == NULL) {
+	      if (record->fqans != tmp_record.fqans)
+		  continue;
+	  } else
+	      if (strcmp(record->fqans, tmp_record.fqans) != 0)
+		  continue;
+      }
 
       if (tmp_record.jobids.len > 0 &&
           current_time + condor_limit + RENEWAL_CLOCK_SKEW > tmp_record.end_time) {
@@ -633,16 +692,8 @@ get_record_ext(glite_renewal_core_context ctx, FILE *fd, proxy_record *record, i
 	 continue;
       }
 
-      record->suffix = tmp_record.suffix;
-      record->jobids.len = tmp_record.jobids.len;
-      record->jobids.val = tmp_record.jobids.val;
-      record->unique = tmp_record.unique;
-      record->voms_exts = tmp_record.voms_exts;
-      if (record->myproxy_server)
-	 free(record->myproxy_server);
-      record->myproxy_server = tmp_record.myproxy_server;
-      record->end_time = tmp_record.end_time;
-      record->next_renewal = tmp_record.next_renewal;
+      free_record(ctx, record);
+      *record = tmp_record;
       return 0;
    }
 
@@ -652,6 +703,9 @@ get_record_ext(glite_renewal_core_context ctx, FILE *fd, proxy_record *record, i
    if (record->suffix >= 0) {
       edg_wlpr_Log(ctx, LOG_DEBUG, "Requested suffix %d not found in meta file",
 	           record->suffix);
+   } else {
+       record->suffix = first_unused;
+       record->next_renewal = record->end_time = 0;
    }
 
    free_record(ctx, &tmp_record);
@@ -660,9 +714,9 @@ get_record_ext(glite_renewal_core_context ctx, FILE *fd, proxy_record *record, i
 }
 
 static int
-get_record(glite_renewal_core_context ctx, FILE *fd, proxy_record *record)
+get_record(glite_renewal_core_context ctx, FILE *fd, const char *basename, proxy_record *record)
 {
-   return get_record_ext(ctx, fd, record, NULL);
+   return get_record_ext(ctx, fd, basename, record, NULL);
 }
 
 static int
@@ -671,7 +725,7 @@ store_record(glite_renewal_core_context ctx, char *basename, proxy_record *recor
    int stored = 0;
    FILE *fd = NULL;
    int temp;
-   char line[1024];
+   char line[EDG_WLPR_SIZE];
    char *new_line = NULL;
    int ret, i;
    char *p;
@@ -702,24 +756,16 @@ store_record(glite_renewal_core_context ctx, char *basename, proxy_record *recor
       p = strchr(line, '\n');
       if (p)
 	 *p = '\0';
-      ret = decode_record(ctx, line, &tmp_record);
+      ret = decode_record(ctx, basename, line, &tmp_record);
       if (ret) {
 	 edg_wlpr_Log(ctx, LOG_WARNING, "Removing invalid entry at line %d in %s", line_num, basename);
 	 continue;
       }
       if (record->suffix == tmp_record.suffix &&
 	  record->unique == tmp_record.unique) {
-	 tmp_record.next_renewal = record->next_renewal;
-	 tmp_record.end_time = record->end_time;
-	 tmp_record.voms_exts = record->voms_exts;
-	 if (tmp_record.myproxy_server != NULL)
-	    free(tmp_record.myproxy_server);
+	 free_record(ctx, &tmp_record);
+	 tmp_record = *record;
 	 tmp_record.myproxy_server = strdup(record->myproxy_server);
-	 if (tmp_record.jobids.val) {
-	    for (i = 0; i < tmp_record.jobids.len; i++)
-	        free(tmp_record.jobids.val[i]);
-	    free(tmp_record.jobids.val);
-	 }
 	 tmp_record.jobids.len = 0;
 	 tmp_record.jobids.val = NULL;
 	 for (i = 0; i < record->jobids.len; i++) {
@@ -727,12 +773,15 @@ store_record(glite_renewal_core_context ctx, char *basename, proxy_record *recor
 	    tmp_record.jobids.val[tmp_record.jobids.len - 1] = 
 	       strdup(record->jobids.val[i]);
 	 }
+	 if (record->fqans)
+	     tmp_record.fqans = strdup(record->fqans);
 	 stored = 1;
       }
       ret = encode_record(ctx, &tmp_record, &new_line);
       if (ret)
 	 goto end;
       dprintf(temp, "%s\n", new_line);
+      save_jobids(ctx, basename, &tmp_record);
       free(new_line);
       new_line = NULL;
    }
@@ -741,6 +790,7 @@ store_record(glite_renewal_core_context ctx, char *basename, proxy_record *recor
       if (ret)
 	 goto end;
       ret = dprintf(temp, "%s\n", new_line);
+      save_jobids(ctx, basename, record);
       free(new_line);
       new_line = NULL;
    }
@@ -822,10 +872,11 @@ check_proxyname(glite_renewal_core_context ctx, char *datafile, char *jobid, cha
 {
    proxy_record record;
    FILE *meta_fd = NULL;
-   char line[1024];
+   char line[EDG_WLPR_SIZE];
    char proxy[FILENAME_MAX];
    char *p;
    int ret, i;
+   char *basename;
 
    memset(&record, 0, sizeof(record));
 
@@ -836,12 +887,15 @@ check_proxyname(glite_renewal_core_context ctx, char *datafile, char *jobid, cha
       return errno;
    }
 
+   basename = strdup(datafile);
+   p = basename + strlen(basename) - strlen(".data");
+   *p = '\0';
    while (fgets(line, sizeof(line), meta_fd) != NULL) {
       free_record(ctx, &record);
       p = strchr(line, '\n');
       if (p)
 	 *p = '\0';
-      ret = decode_record(ctx, line, &record);
+      ret = decode_record(ctx, basename, line, &record);
       if (ret)
 	 continue; /* XXX exit? */
       for (i = 0; i < record.jobids.len; i++) {
@@ -852,12 +906,14 @@ check_proxyname(glite_renewal_core_context ctx, char *datafile, char *jobid, cha
 	    *filename = strdup(proxy);
             free_record(ctx, &record);
 	    fclose(meta_fd);
+	    free(basename);
 	    return 0;
 	 }
       }
    }
    free_record(ctx, &record);
    fclose(meta_fd);
+   free(basename);
    return EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND;
 }
       
@@ -927,19 +983,20 @@ register_proxy(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wl
    if (ret)
       goto end;
 
-   if (voms_enabled)
-     ret = is_voms_cert(ctx, request->proxy_filename, &record.voms_exts);
-     /* ignore VOMS related error */
+   if (voms_enabled) {
+       record.fqans = get_voms_fqans(ctx, request->proxy_filename);
+       record.voms_exts = (record.fqans != NULL);
+   }
 
    /* Find first free record */
    record.suffix = -1;
    record.myproxy_server = strdup(request->myproxy_server);
-   ret = get_record_ext(ctx, meta_fd, &record, &last_suffix);
+   ret = get_record_ext(ctx, meta_fd, basename, &record, &last_suffix);
    fclose(meta_fd); meta_fd = NULL;
    if (ret && ret != EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND)
       goto end;
 
-   if (ret == EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND || record.jobids.len == 0 || request->unique || record.voms_exts) {
+   if (ret == EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND || record.jobids.len == 0 || request->unique) {
       /* create a new proxy file in the repository */
       int suffix;
 
@@ -966,7 +1023,7 @@ register_proxy(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wl
 	 goto end;
       record.jobids.val[record.jobids.len - 1] = strdup(request->jobid);
       snprintf(filename, sizeof(filename), "%s.%d", basename, record.suffix);
-      edg_wlpr_Log(ctx, LOG_DEBUG, "Inremented counter on %s", filename);
+      edg_wlpr_Log(ctx, LOG_DEBUG, "Incremented counter on %s", filename);
    }
 
    ret = store_record(ctx, basename, &record);
@@ -1054,7 +1111,7 @@ unregister_proxy(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_
       return;
    }
 
-   ret = get_record(ctx, meta_fd, &record);
+   ret = get_record(ctx, meta_fd, basename, &record);
    if (ret)
       goto end;
 
@@ -1082,6 +1139,10 @@ unregister_proxy(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_
       record.voms_exts = 0;
       record.end_time = 0;
       record.next_renewal = 0;
+      if (record.fqans) {
+	  free(record.fqans);
+	  record.fqans = NULL;
+      }
    }
 
    ret = stat(request->proxy_filename, &stat_buf);
@@ -1162,7 +1223,7 @@ update_db(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wlpr_Re
    char tmp_file[FILENAME_MAX];
    char cur_proxy[FILENAME_MAX];
    char datafile[FILENAME_MAX];
-   char line[1024];
+   char line[EDG_WLPR_SIZE];
    char *new_line = NULL;
    char *basename, *proxy = NULL;
    char **entry;
@@ -1211,7 +1272,7 @@ update_db(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wlpr_Re
       p = strchr(line, '\n');
       if (p)
 	 *p = '\0';
-      ret = decode_record(ctx, line, &record);
+      ret = decode_record(ctx, basename, line, &record);
       if (ret)
 	 goto end;
       
@@ -1236,9 +1297,12 @@ update_db(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wlpr_Re
 	     * reschedule renewal */
 	    if (record.end_time < current_time) {
 	       char *server;
+	       char jobids[FILENAME_MAX];
 	       /* remove file with expired proxy and clean the record in db */
 	       unlink(cur_proxy);
 	       server = strdup(record.myproxy_server);
+	       snprintf(jobids, sizeof(jobids), "%s.%u.jobs", basename, record.suffix);
+	       unlink(jobids);
 	       free_record(ctx, &record);
 	       record.suffix = suffix;
 	       record.myproxy_server = server;

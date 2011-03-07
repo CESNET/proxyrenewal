@@ -288,7 +288,7 @@ renew_voms_certs(glite_renewal_core_context ctx, const char *cur_file, const cha
       goto end;
 
    ret = get_voms_cert(ctx, cert, chain, &vd);
-   if (ret)
+   if (ret || vd == NULL)
       goto end;
 
    for (voms_cert = vd->data; voms_cert && *voms_cert; voms_cert++) {
@@ -354,27 +354,44 @@ renew_voms_creds(glite_renewal_core_context ctx, const char *cur_file, const cha
    return renew_voms_certs(ctx, cur_file, renewed_file, new_file);
 }
 
-int
-is_voms_cert(glite_renewal_core_context ctx,
-	      const char *file,
-              int *present)
+char *
+get_voms_fqans(glite_renewal_core_context ctx, const char *file)
 {
    struct vomsdata *voms_info = NULL;
+   struct voms **voms_cert;
    STACK_OF(X509) *chain = NULL;
    X509 *cert = NULL;
    int ret;
+   char *fqans = NULL, **f, *tmp;
+   size_t len, flen;
    
-   *present = 0;
-
    ret = load_proxy(ctx, file, &cert, NULL, &chain, NULL);
    if (ret)
-      return ret;
+      return NULL;
 
    ret = get_voms_cert(ctx, cert, chain, &voms_info);
-   if (ret) 
+   if (ret || voms_info == NULL) 
       goto end;
 
-   *present = (voms_info != NULL);
+   len = 0;
+   for (voms_cert = voms_info->data; voms_cert && *voms_cert; voms_cert++) {
+       for (f = (*voms_cert)->fqan; f && *f; f++) {
+	   flen = strlen(*f);
+	   tmp = realloc(fqans, len + ((len) ? 1 : 0) + flen + 1);
+	   if (tmp == NULL) {
+	       free(fqans);
+	       fqans = NULL;
+	       goto end;
+	   }
+	   fqans = tmp;
+	   if (len == 0)
+	       fqans[0] = '\0';
+	   else
+	       strcat(fqans, ":");
+	   strcat(fqans, *f);
+	   len += flen;
+       }
+   }
 
 end:
    if (voms_info)
@@ -382,7 +399,18 @@ end:
    sk_X509_pop_free(chain, X509_free);
    X509_free(cert);
 
-   return ret;
+   return fqans;
+}
+
+int
+is_voms_cert(glite_renewal_core_context ctx,
+	      const char *file,
+              int *present)
+{
+    char *fqans = get_voms_fqans(ctx, file);
+    *present = (fqans != NULL);
+    free(fqans);
+    return 0;
 }
 
 int
