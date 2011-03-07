@@ -25,7 +25,7 @@
 #include <globus_gsi_proxy.h>
 #include <globus_gsi_cert_utils_constants.h>
 
-#include <glite/security/voms/voms_apic.h>
+#include <voms/voms_apic.h>
 
 #include "renewal.h"
 #include "renewal_core.h"

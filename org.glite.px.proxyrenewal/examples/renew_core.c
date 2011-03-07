@@ -19,7 +19,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <getopt.h>
+#ifdef LOCAL_PX_COMPILE
+#include "renewal_core.h"
+#else
 #include <glite/security/proxyrenewal/renewal_core.h>
+#endif
 
 static struct option const long_options[] = {
    { "server",   required_argument, 0, 's' },
