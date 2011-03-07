@@ -124,11 +124,11 @@ startup: ${top_srcdir}/config/startup
 	chmod +x $@
 
 ifeq (${thrflavour},)
-${LIB}: ${THRLIBOBJ}
-	${LINK} ${version_info} -o $@ ${THRLIBLOBJ} -rpath ${glite_location}/${libdir}
+${LIB}: ${LIBOBJ}
+	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/${libdir}
 
-${LIB_CORE}: ${LIB_CORE_THR_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${glite_location}/${libdir} ${MYPROXY_LIBS} ${VOMS_LIBS}
+${LIB_CORE}: ${LIB_CORE_OBJS}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/${libdir} ${MYPROXY_LIBS} ${VOMS_LIBS}
 else
 ${NOTHRLIB}: ${LIBOBJ}
 	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/${libdir}
