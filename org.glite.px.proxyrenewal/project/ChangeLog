@@ -11,3 +11,6 @@
 1.3.13-1
 - Fixes for build in EMI
 
+1.3.14-1
+- Transfer of changes that were not taken over from glite-security-proxyrenewal by mistake
+
