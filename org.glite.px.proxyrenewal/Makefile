@@ -67,7 +67,8 @@ DEBUG:=-g -O0
 CFLAGS:= ${CFLAGS} ${DEBUG} \
 	${VOMS_CFLAGS} \
 	-I${top_srcdir}/src -I${top_srcdir}/interface \
-	-I${glite_location}/include
+	-I${glite_location}/include \
+	 -DLOCAL_PX_COMPILE=1
 
 offset=1
 version_info:=-version-info ${shell \
@@ -153,7 +154,7 @@ ${THRLIBOBJ} ${LIB_CORE_THR_OBJS}: %.thr.o: %.c
 	${COMPILE} ${MYPROXY_THR_INC} ${GLOBUS_THR_INC} -o $@ -c $<
 
 %.o: %.c
-	${COMPILE} ${MYPROXY_CFLAGS} ${GLOBUS_GSSAPI_GSI_CFLAGS} -DLOCAL_PX_COMPILE=1 -c $<
+	${COMPILE} ${MYPROXY_CFLAGS} ${GLOBUS_GSSAPI_GSI_CFLAGS} -c $<
 
 ${EXAMPLES}: %: %.o
 	${LINK} -o $@ $< ${default_libcore}
