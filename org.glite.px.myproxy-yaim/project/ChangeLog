@@ -15,3 +15,6 @@
 - product-specific GLITE_*_LOCATION* variables
 - distinguish yaim prefix and glite prefix
 
+4.1.2-2
+- Module rebuilt
+
