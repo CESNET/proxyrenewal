@@ -10,17 +10,13 @@ sysconfdir=/opt/glite/etc
 -include ../project/version.properties
 
 yaim_prefix=/opt/glite
-node_info=${top_srcdir}/config/node-info.d/glite-px
-node_info_project=${top_srcdir}/config/node-info.d/${project}/glite-px
+ifeq (${project},emi)
+yaim_project=/emi
+endif
 
-FILES=glite-px.pre glite-px
+FILES=glite-px.pre LICENSE COPYRIGHT node-version arch service update
 
 all ${FILES}:
-	if test -f "${node_info_project}"; then \
-		cp ${node_info_project} . ; \
-	else \
-		cp ${node_info} . ; \
-	fi
 	glite_var="${localstatedir}/glite"; \
 	if echo "${localstatedir}" | grep 'glite'>/dev/null; then \
 		glite_var="${localstatedir}"; \
@@ -42,10 +38,11 @@ install: ${FILES}
 	mkdir -p ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/etc/versions
 	mkdir -p ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/defaults
 	install -m 0644 $(top_srcdir)/config/services/glite-px ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/examples/siteinfo/services/glite-px
-	for c in gip_px  info_service_px  proxy_server ; do \
+	for c in gip_px  proxy_server ; do \
 		install -m 0644 $(top_srcdir)/config/functions/config_$$c ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/functions; \
 	done
-	install -m 0644 glite-px ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/node-info.d; \
+	install -m 0644 $(top_srcdir)/config/functions${yaim_project}/config_info_service_px ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/functions
+	install -m 0644 ${top_srcdir}/config/node-info.d${yaim_project}/glite-px ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/node-info.d; \
 	install -m 0644 glite-px.pre ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/defaults
 	echo "$(package) $(module.version)-$(module.age)" > ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/etc/versions/$(package)
 	mkdir -p ${DESTDIR}${PREFIX}${yaim_prefix}/release/glite-PX
@@ -59,4 +56,4 @@ check:
 clean:
 	rm -rvf log.xml project/ rpmbuild/ RPMS/ tgz/ debian/ ${FILES}
 
-.PHONY: default all check stage clean
+.PHONY: default all check install stage clean
