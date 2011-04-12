@@ -1,0 +1,85 @@
+.TH GLITE-PROXY-RENEW 1 "April 2011" "EU EMI Project" "Proxy renewal"
+
+.SH NAME
+glite-proxy-renew - simple client for the proxy renewal daemon.
+
+.SH SYNOPSIS
+.B glite-proxy-renew
+.RI -j " <jobid> " [ options ] " command"
+.br
+
+.SH DESCRIPTION
+.B glite-proxy-renew
+communicates with the proxy renewal daemon and allows administrators to
+check it functions correctly. It is not meant to be used regularly or by
+regular users.
+
+.SH COMMANDS
+.TP
+.BI "start "
+Register a proxy
+with the renewal daemon to keep it renewed. The name of the
+file from the repository is returned as the result. The
+.BI \-f " FILE" "\fR,\fP --file " FILE
+option must be given.
+
+.TP
+.BI "stop "
+Unregisters a proxy from the renewal repository. The proxy file will be removed.
+
+.TP
+.BI get
+Lookup the renewal repository to find whether a proxy for the jobid is
+registered. If found, the command returns the filename from the
+repository.
+
+.SH OPTIONS
+.TP
+.BI \-f " FILE" "\fR,\fP --file " FILE
+Specifies the filename containing the proxy certificate that should be
+renewed.
+
+.TP
+.BI \-h "\fR,\fP --help "
+Display a list of valid options.
+
+.TP
+.BI \-j " JOBID" "\fR,\fP --jobid " JOBID
+Specifies the job id that is uniquely tied with the proxy.
+This option is obligatory and is required for all commands. 
+
+.TP
+.BI \-p " PORT" "\fR,\fP --port " PORT
+Specifies port of the MyProxy server, which should be used to renew the
+proxy.
+
+.TP
+.BI \-s " SERVER" "\fR,\fP --server " SERVER
+Specifies the name of the MyProxy server, which should be used to renew the
+proxy.
+
+.TP
+.BI \-v "\fR,\fP --version "
+Display the version of the proxy renewal daemon.
+
+.SH FILES
+.TP
+.I /tmp/dgpr_renew_<uid>
+A unix socket used to talk to the daemon. It is created the daemon upon its
+start
+
+.SH ENVIRONMENT
+.TP
+.B GLITE_PR_TIMEOUT
+Sets the maximum number of seconds that the daemon is given to answer a
+request done over the unix socket. The default value is 120 seconds.
+
+.SH BUGS
+Please report all bugs to the gLite bug tracking system available at
+.I https://savannah.cern.ch
+
+.SH SEE ALSO
+.B glite-proxy-renewd\fR(8)\fP
+
+.SH AUTHOR
+EU EGEE, EU EMI

@@ -1,0 +1,133 @@
+.TH GLITE-PROXY-RENEWD 8 "April 2011" "EU EMI Project" "Proxy renewal"
+
+.SH NAME
+glite-proxy-renewd - proxy renewal daemon
+
+.SH SYNOPSIS
+.B glite-proxy-renewd
+.RI [ options ]
+.br
+
+.SH DESCRIPTION
+.B glite-proxy-renewd
+registers X.509 proxy certificates and periodicaly renews them
+using a MyProxy repository.
+
+.SH OPTIONS
+.TP
+.BI \-A " DIR" "\fR,\fP --VOMSdir " DIR
+Renew also VOMS attributes if they are embeded in the renewed proxy. If the
+option is given, the renewal daemon will retrieve a fresh copy of the VOMS
+attributes and place it inside the new proxy.
+
+.TP
+.BI \-C " DIR" "\fR,\fP --CAdir " DIR
+An alternative directory with trusted root anchors. This option overrides the
+.B \fR$\fPX509_USER_DIR
+environment variable.
+
+.TP
+.BI \-c " NUM" "\fR,\fP --condor-limit " NUM
+Specifies how many
+.I NUM
+seconds before expiration of a proxy should the renewal process be started. It defaults to 1800 seconds.
+
+.TP
+.BI \-d "\fR,\fP --debug "
+Don't daemonize and start logging to stdout. Increased level of debugging is enabled, too.
+
+.TP
+.BI \-G " FILE" "\fR,\fP --voms-config " FILE
+An alternative location of the VOMS configuration.
+
+.TP
+.BI \-h "\fR,\fP --help "
+Display a list of valid options.
+
+.TP
+.BI \-k " FILE" "\fR,\fP --key " FILE
+Get certificate from
+.I FILE\fR.\fP
+This option overrides the
+.B \fR$\fPX509_USER_CERT
+environment variable.
+
+.TP
+.BI \-O "\fR,\fP --order-attributes "
+Make sure that the order of renewed VOMS attributes is retained. Enabling
+this option may cause crashes of old VOMS servers (older than
+1.8.12).
+
+.TP
+.BI \-r " DIR" "\fR,\fP --repository " DIR
+All registered proxies and corresponding metadata will be stored in
+.I repository\fR.\fP
+The directory must exist and be writeable by the proxy renewal daemon.
+
+.TP
+.BI \-t " FILE" "\fR,\fP --cert " FILE
+Get private key from
+.I FILE\fR.\fP
+This option overrides the
+.B \fR$\fPX509_USER_KEY
+environment variable.
+
+.TP
+.BI \-V " DIR" "\fR,\fP --VOMSdir " DIR
+An alternative directory with trusted VOMS certificates
+
+.TP
+.BI \-v "\fR,\fP --version "
+Display the version of the proxy renewal daemon.
+
+.SH FILES
+.TP
+.I /tmp/dgpr_renew_<uid>
+A unix socket used to talk to the daemon. It is created the daemon upon its
+start
+
+.TP
+.I proxy repository
+A directory containing all the registered proxy certificates and additional
+meta-data.
+
+.TP
+There is no configuration file used the proxy renewal daemon.
+
+.SH ENVIRONMENT
+.TP
+.B GLITE_PR_TIMEOUT
+Sets the maximum number of seconds that the daemon can spend on serving
+the client over the unix socket. The default value is 120 seconds.
+
+.TP
+Also, standard globus variables are honoured:
+
+.TP
+.B X509_USER_KEY
+If
+.B \fR$\fPX509_USER_KEY
+is set, it is used to locate the private key file.
+
+.TP
+.B X509_USER_CERT
+If
+.B \fR$\fPX509_USER_CERT
+is set, it is used to locate the certificate file.
+
+.TP
+.B X509_CERT_DIR
+If
+.B \fR$\fPX509_CERT_DIR
+is set, it is used to locate trusted CA's certificates and ca-signing-policy
+files.
+
+.SH BUGS
+Please report all bugs to the gLite bug tracking system available at
+.I https://savannah.cern.ch
+
+.SH SEE ALSO
+.B glite-proxy-renew\fR(1)\fP
+
+.SH AUTHOR
+EU EGEE, EU EMI
