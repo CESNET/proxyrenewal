@@ -83,6 +83,10 @@ DAEMONOBJ:=renewd.o renew.o common.o commands.o api.o voms.o
 LIBOBJ:=api.o common.o
 LIB_CORE_OBJS := renewal_core.o voms.o
 CLIENTOBJ:=client.o
+MAN1_GZ:=glite-proxy-renew.1.gz
+MAN8_GZ:=glite-proxy-renewd.8.gz
+MAN_GZ = ${MAN1_GZ} ${MAN8_GZ}
+MAN = $(MAN_GZ:.gz=)
 
 THRLIBOBJ:=${LIBOBJ:.o=.thr.o}
 LIBLOBJ:=${LIBOBJ:.o=.lo}
@@ -114,7 +118,7 @@ CLIENT:=glite-proxy-renew
 EXAMPLES := renew_core
 
 default: all
-compile all: startup ${lib_LTLIBRARIES} ${DAEMON} ${CLIENT} 
+compile all: startup ${lib_LTLIBRARIES} ${DAEMON} ${CLIENT} ${MAN_GZ}
 
 startup: ${top_srcdir}/config/startup
 	glite_var="${localstatedir}/glite"; \
@@ -159,6 +163,10 @@ ${THRLIBOBJ} ${LIB_CORE_THR_OBJS}: %.thr.o: %.c
 ${EXAMPLES}: %: %.o
 	${LINK} -o $@ $< ${default_libcore}
 
+${MAN_GZ}: ${MAN}
+	cp $? .
+	gzip -f $(notdir $?)
+
 stage: compile
 	$(MAKE) install PREFIX=${stagedir}
 
@@ -187,7 +195,8 @@ install:
 	${INSTALL} -m 644 ${top_srcdir}/LICENSE ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version}
 	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal
 	${INSTALL} -m 755 startup ${DESTDIR}${PREFIX}${sysconfdir}/init.d/glite-proxy-renewald
-
+	${INSTALL} -m 644 ${MAN1_GZ} ${DESTDIR}${PREFIX}${prefix}/share/man/man1
+	${INSTALL} -m 644 ${MAN8_GZ} ${DESTDIR}${PREFIX}${prefix}/share/man/man8
 
 clean:
 	$(RM) ${lib_LTLIBRARIES} $(DAEMON) $(CLIENT) $(EXAMPLES) *.o *.lo core startup
