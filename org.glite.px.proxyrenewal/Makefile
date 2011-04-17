@@ -130,22 +130,22 @@ startup: ${top_srcdir}/config/startup
 
 ifeq (${thrflavour},)
 ${LIB}: ${LIBOBJ}
-	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/${libdir}
+	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${prefix}/${libdir}
 
 ${LIB_CORE}: ${LIB_CORE_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/${libdir} ${MYPROXY_LIBS} ${VOMS_LIBS}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${prefix}/${libdir} ${MYPROXY_LIBS} ${VOMS_LIBS}
 else
 ${NOTHRLIB}: ${LIBOBJ}
-	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${glite_location}/${libdir}
+	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${prefix}/${libdir}
 
 ${THRLIB}: ${THRLIBOBJ}
-	${LINK} ${version_info} -o $@ ${THRLIBLOBJ} -rpath ${glite_location}/${libdir}
+	${LINK} ${version_info} -o $@ ${THRLIBLOBJ} -rpath ${prefix}/${libdir}
 
 ${LIB_CORE_NOTHR}: ${LIB_CORE_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${glite_location}/${libdir} ${MYPROXY_LIB_NOTHR} ${VOMS_LIBS_NOTHR}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${prefix}/${libdir} ${MYPROXY_LIB_NOTHR} ${VOMS_LIBS_NOTHR}
 
 ${LIB_CORE_THR}: ${LIB_CORE_THR_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${glite_location}/${libdir} ${MYPROXY_LIB_THR} ${VOMS_LIBS_THR}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${prefix}/${libdir} ${MYPROXY_LIB_THR} ${VOMS_LIBS_THR}
 endif
 
 ${DAEMON}: ${DAEMONOBJ} ${default_libcore}
@@ -168,7 +168,7 @@ ${MAN_GZ}: ${MAN}
 	gzip -f $(notdir $?)
 
 stage: compile
-	$(MAKE) install PREFIX=${stagedir}
+	$(MAKE) install PREFIX=${stagedir} staging=1
 
 check:
 	echo No unit tests
