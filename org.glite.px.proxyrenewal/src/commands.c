@@ -1206,8 +1206,8 @@ end:
    if (ret == 0)
       ret = filename_to_response(ctx, filename, response);
    else
-      edg_wlpr_Log(ctx, LOG_ERR, "Failed to register proxy %s: %s",
-                   request->proxy_filename,
+      edg_wlpr_Log(ctx, LOG_ERR, "Failed to return proxy for %s: %s",
+		   request->jobid,
                    glite_renewal_core_get_err(ctx));
    if (filename)
       free(filename);
