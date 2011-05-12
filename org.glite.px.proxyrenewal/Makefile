@@ -27,7 +27,8 @@ version=0.0.0
 PREFIX=/opt/glite
 libdir=lib
 prefix=
-sysconfdir=/opt/glite/etc
+sysconfdir=/etc
+sysroot=
 
 glite_location=${PREFIX}${prefix}
 globus_prefix=/opt/globus
@@ -125,7 +126,7 @@ startup: ${top_srcdir}/config/startup
 	if echo "${localstatedir}" | grep 'glite'>/dev/null; then \
 		glite_var="${localstatedir}"; \
 	fi; \
-	sed -e 's:@glite_prefix@:${sysroot}${prefix}:' -e 's:@glite_etc@:${sysconfdir}:' -e "s:@glite_var@:$$glite_var:" $< > $@
+	sed -e 's:@glite_prefix@:${sysroot}${prefix}:' -e 's:@glite_etc@:${sysroot}${sysconfdir}:' -e "s:@glite_var@:$$glite_var:" $< > $@
 	chmod +x $@
 
 ifeq (${thrflavour},)
