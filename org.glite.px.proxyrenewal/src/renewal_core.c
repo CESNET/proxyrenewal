@@ -250,7 +250,7 @@ glite_renewal_core_init_ctx(glite_renewal_core_context *context)
    if (p == NULL)
       return ENOMEM;
 
-   p->log_level = LOG_ERR;
+   p->log_level = LOG_WARNING;
    p->log_dst = GLITE_RENEWAL_LOG_SYSLOG;
 
    *context = p;

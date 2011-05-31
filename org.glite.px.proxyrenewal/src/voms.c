@@ -218,8 +218,9 @@ renew_voms_cert(glite_renewal_core_context ctx, struct vomsdata *vd, struct voms
          goto end;
       }
       err_msg = VOMS_ErrorMessage(vd, voms_error, NULL, 0);
-      glite_renewal_core_set_err(ctx,
-                   "Failed to contact VOMS server %s of VO %s: %s",
+      edg_wlpr_Log(ctx, LOG_WARNING,
+                   "Failed to contact the origin VOMS server %s for %s: %s. "
+		   "Retrying with local VOMS configuration.",
                    voms_server, (*voms_cert)->voname, err_msg);
       free(err_msg);
    }
@@ -246,12 +247,16 @@ renew_voms_cert(glite_renewal_core_context ctx, struct vomsdata *vd, struct voms
           break;
        }
        err_msg = VOMS_ErrorMessage(vd, voms_error, NULL, 0);
-       glite_renewal_core_set_err(ctx,
-                    "Failed to contact VOMS server %s of VO %s: %s",
+       edg_wlpr_Log(ctx, LOG_WARNING,
+                    "Failed to contact VOMS server %s of VO '%s': %s",
                     (*c)->host, (*voms_cert)->voname, err_msg);
        free(err_msg);
    }
    ret = (ret == 0) ? -1 : 0;
+
+   if (ret)
+       glite_renewal_core_set_err(ctx, "Failed to contact all known VOMS servers for VO '%s'",
+				  (*voms_cert)->voname);
 
 end:
    VOMS_DeleteContacts(voms_contacts);
