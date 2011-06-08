@@ -1038,7 +1038,7 @@ end:
 
    if (ret == 0) {
       ret = filename_to_response(ctx, filename, response);
-      edg_wlpr_Log(ctx, LOG_INFO,
+      edg_wlpr_Log(ctx, LOG_NOTICE,
                    "Proxy %s of job %s has been registered as %s",
 		   request->proxy_filename, request->jobid, filename);
    } else
@@ -1169,7 +1169,7 @@ end:
 
    if (ret == 0) {
       ret = filename_to_response(ctx, request->proxy_filename, response);
-      edg_wlpr_Log(ctx, LOG_INFO,
+      edg_wlpr_Log(ctx, LOG_NOTICE,
                    "Proxy %s of job %s has been unregistered",
 		   request->proxy_filename, request->jobid);
    }
@@ -1206,7 +1206,7 @@ end:
    if (ret == 0)
       ret = filename_to_response(ctx, filename, response);
    else
-      edg_wlpr_Log(ctx, LOG_ERR, "Failed to return proxy for %s: %s",
+      edg_wlpr_Log(ctx, LOG_INFO, "Failed to return proxy for %s: %s",
 		   request->jobid,
                    glite_renewal_core_get_err(ctx));
    if (filename)
