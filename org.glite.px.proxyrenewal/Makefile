@@ -201,5 +201,7 @@ install:
 
 clean:
 	$(RM) ${lib_LTLIBRARIES} $(DAEMON) $(CLIENT) $(EXAMPLES) *.o *.lo core startup
+	$(RM) ${MAN1_GZ} ${MAN8_GZ}
+	$(RM) -rf .libs
 
 .PHONY: default all compile examples check stage dist distsrc distbin install clean
