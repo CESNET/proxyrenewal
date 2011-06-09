@@ -495,8 +495,8 @@ edg_wlpr_GetStatus(const char *filename, char **info)
 static const char* const errTexts[] = {
    "Unexpected EOF from peer",
    "Generic error",
-   "Protocol parse error",
-   "Compulsory element not found in message",
+   "Cannot parse protocol messages",
+   "Obligatory element not found in message",
    "Unknown protocol command",
    "SSL error",
    "Error from Myproxy server",
@@ -510,12 +510,13 @@ static const char* const errTexts[] = {
 const char *
 edg_wlpr_GetErrorText(int code)
 {
-   return code ?
-           (code <= EDG_WLPR_ERROR_BASE ?
-	            strerror(code) :
-		    errTexts[code - EDG_WLPR_ERROR_BASE - 1]
-	   ) :
-	   NULL;
+    if (code == 0)
+	return "No error";
+    if (code <= EDG_WLPR_ERROR_BASE)
+	return strerror(code);
+    if (code == EDG_WLPR_ERROR_ERRNO)
+	return strerror(errno);
+    return errTexts[code - EDG_WLPR_ERROR_BASE - 1];
 }
 
 int

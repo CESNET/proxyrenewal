@@ -20,21 +20,6 @@
 
 #ident "$Header$"
 
-static const char * const ErrorMsgs[] = {
-    "Connection closed unexpectedly",
-    "Generic error",
-    "Cannot parse protocol messages",
-    "Obligatory item not found in message",
-    "Unkown command",
-    "SSL error",
-    "MyProxy error",
-    "Proxy not registered",
-    "Proxy expired",
-    "VOMS error",
-    "Operation timed out",
-    "System error",
-};
-
 /* nread() and nwrite() never return partial data */
 static int
 nread(int sock, struct timeval *to, char *buf, size_t buf_len, size_t *read_len)
@@ -316,16 +301,6 @@ edg_wlpr_CleanResponse(edg_wlpr_Response *response)
       free(response->filenames);
    }
    memset(response, 0, sizeof(*response));
-}
-
-const char *
-edg_wlpr_GetErrorString(int code)
-{
-    if (code == 0)
-	return "No error";
-    if (code <= EDG_WLPR_ERROR_BASE)
-	return strerror(code);
-    return ErrorMsgs[code - EDG_WLPR_ERROR_BASE - 1];
 }
 
 char *

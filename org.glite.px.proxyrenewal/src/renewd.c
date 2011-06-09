@@ -144,7 +144,7 @@ proto(glite_renewal_core_context ctx, int sock)
    ret = edg_wlpr_Read(sock, &timeout, &buf, &buf_len);
    if (ret) {
       edg_wlpr_Log(ctx, LOG_ERR, "Error reading from client: %s",
-                   edg_wlpr_GetErrorString(ret));
+                   edg_wlpr_GetErrorText(ret));
       return ret;
    }
 
@@ -172,7 +172,7 @@ proto(glite_renewal_core_context ctx, int sock)
    free(buf);
    if (ret) {
       edg_wlpr_Log(ctx, LOG_ERR, "Error sending response to client: %s",
-                   edg_wlpr_GetErrorString(ret));
+                   edg_wlpr_GetErrorText(ret));
       goto end;
    }
 
@@ -252,7 +252,7 @@ decode_request(glite_renewal_core_context ctx, const char *msg, const size_t msg
 	 		   0, &request->version);
    if (ret) {
       edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading protocol specification: %s",
-                   edg_wlpr_GetErrorString(ret));
+                   edg_wlpr_GetErrorText(ret));
       return ret;
    }
    
@@ -260,7 +260,7 @@ decode_request(glite_renewal_core_context ctx, const char *msg, const size_t msg
 	 		   0, &value);
    if (ret) {
       edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading command specification: %s",
-                   edg_wlpr_GetErrorString(ret));
+                   edg_wlpr_GetErrorText(ret));
       goto err;
    }
 
@@ -283,7 +283,7 @@ decode_request(glite_renewal_core_context ctx, const char *msg, const size_t msg
 	 		   SEPARATORS, 0, &request->myproxy_server);
    if (ret && ret != EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND) {
       edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading myproxy server specification: %s",
-                   edg_wlpr_GetErrorString(ret));
+                   edg_wlpr_GetErrorText(ret));
       goto err;
    }
 
@@ -300,7 +300,7 @@ decode_request(glite_renewal_core_context ctx, const char *msg, const size_t msg
 	 		   0, &request->proxy_filename);
    if (ret && ret != EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND) {
       edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading proxy specification: %s",
-                   edg_wlpr_GetErrorString(ret));
+                   edg_wlpr_GetErrorText(ret));
       goto err;
    }
 
@@ -318,7 +318,7 @@ decode_request(glite_renewal_core_context ctx, const char *msg, const size_t msg
 	 		   0, &request->jobid);
    if (ret && ret != EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND) {
       edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading JobId : %s",
-	    	   edg_wlpr_GetErrorString(ret));
+	    	   edg_wlpr_GetErrorText(ret));
       goto err;
    }
 
