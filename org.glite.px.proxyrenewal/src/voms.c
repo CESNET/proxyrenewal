@@ -28,8 +28,8 @@ static const char rcsid[] = "$Id$";
 
 #include "voms/newformat.h"
 
-char * Decode(const char *, int, int *);
 char **listadd(char **, char *, int);
+void listfree(char **, void (*f)(void *));
 
 static int
 generate_proxy(glite_renewal_core_context ctx, globus_gsi_cred_handle_t cur_proxy,
@@ -109,30 +109,9 @@ end:
 }
 
 static int
-my_VOMS_Export(glite_renewal_core_context ctx, void *buf, int buf_len, X509_EXTENSION **extension)
-{
-   AC *ac = NULL;
-   unsigned char *p, *pp;
-   AC **voms_attrs = NULL;
-
-   p = pp = buf;
-   ac = d2i_AC(NULL, &p, buf_len+1);
-   if (ac == NULL) {
-      glite_renewal_core_set_err(ctx, "d2i_AC() failed");
-      return 1;
-   }
-
-   voms_attrs = (AC **)listadd((char **)voms_attrs, (char *)ac, sizeof(AC *));
-
-   *extension = X509V3_EXT_conf_nid(NULL, NULL, OBJ_txt2nid("acseq"),
-				   (char*)voms_attrs);
-   return 0;
-}
-
-static int
 create_voms_command(glite_renewal_core_context ctx, struct vomsdata *vd, struct voms **voms_cert, char **command)
 {
-   int ret, voms_err, i;
+   int voms_err, i;
    struct data **attribs;
    char *str = NULL;
    char *role, *cmd = NULL, *tmp  = NULL;
@@ -176,10 +155,46 @@ create_voms_command(glite_renewal_core_context ctx, struct vomsdata *vd, struct 
 }
 
 static int
-renew_voms_cert(glite_renewal_core_context ctx, struct vomsdata *vd, struct voms **voms_cert, 
-                char **buf, size_t *buf_len)
+get_voms_ac(glite_renewal_core_context ctx, char *server, int port,
+	    char *server_subj, char *cmd, struct vomsdata *vd, AC **ac)
 {
-   int voms_error = 0, ret, voms_version, port = -1;
+    int ret, voms_error = 0, voms_version;
+    unsigned char *p;
+    void *buf = NULL;
+    int buf_len;
+    char *err_msg;
+
+    ret = VOMS_ContactRaw(server, port, server_subj, cmd, &buf, &buf_len,
+			  &voms_version, vd, &voms_error);
+    if (ret == 0) {
+	err_msg = VOMS_ErrorMessage(vd, voms_error, NULL, 0);
+	glite_renewal_core_set_err(ctx, "Error contacting VOMS server: %s",
+				   err_msg);
+	free(err_msg);
+	return -1;
+    }
+
+    p = buf;
+    *ac = d2i_AC(NULL, &p, buf_len);
+    if (*ac == NULL) {
+	glite_renewal_core_set_err(ctx, "d2i_AC() failed");
+	ret = -1;
+	goto end;
+    }
+    ret = 0;
+
+end:
+    if (buf)
+	free(buf);
+
+    return 0;
+}
+
+static int
+renew_voms_cert(glite_renewal_core_context ctx, struct vomsdata *vd,
+		struct voms **voms_cert, AC **ac)
+{
+   int voms_error = 0, ret, port = -1;
    struct contactdata **voms_contacts = NULL;
    struct contactdata **c;
    char *command = NULL;
@@ -189,9 +204,9 @@ renew_voms_cert(glite_renewal_core_context ctx, struct vomsdata *vd, struct voms
    if (ret)
       return ret;
 
-   /* XXX the lifetime should be taken from the older proxy */
    VOMS_SetLifetime(60*60*12, vd, &voms_error);
 
+   /* first try to contact the VOMS server that issued the original AC */
    if ((*voms_cert)->uri != NULL) {
       voms_server = strdup((*voms_cert)->uri);
       if (voms_server == NULL) {
@@ -207,22 +222,19 @@ renew_voms_cert(glite_renewal_core_context ctx, struct vomsdata *vd, struct voms
       }
    }
 
-   /* first try to contact the VOMS server that issued the original AC */
    if (voms_server && port != -1 && (*voms_cert)->server != NULL) {
-      ret = VOMS_ContactRaw(voms_server, port, (*voms_cert)->server,
-                            command, (void**) buf, buf_len, &voms_version,
-			    vd, &voms_error);
-      if (ret != 0) {
-         /* success, let's finish */
-         ret = 0;
-         goto end;
-      }
-      err_msg = VOMS_ErrorMessage(vd, voms_error, NULL, 0);
-      edg_wlpr_Log(ctx, LOG_WARNING,
-                   "Failed to contact the origin VOMS server %s for %s: %s. "
+       ret = get_voms_ac(ctx, voms_server, port, (*voms_cert)->server,
+	                 command, vd, ac);
+       if (ret == 0)
+	   /* success, let's finish */
+	   goto end;
+
+       edg_wlpr_Log(ctx, LOG_WARNING,
+                   "Failed to get attributes from the origin VOMS server %s for '%s' (%s). "
 		   "Retrying with local VOMS configuration.",
-                   voms_server, (*voms_cert)->voname, err_msg);
-      free(err_msg);
+		   voms_server, (*voms_cert)->voname,
+		   glite_renewal_core_get_err(ctx));
+       glite_renewal_core_reset_err(ctx);
    }
 
    /* if the original URI doesn't work, try VOMS servers given in local
@@ -237,32 +249,32 @@ renew_voms_cert(glite_renewal_core_context ctx, struct vomsdata *vd, struct voms
       goto end;
    }
 
-   ret = 0;
+   ret = -1;
    for (c = voms_contacts; c && *c; c++) {
-       ret = VOMS_ContactRaw((*c)->host, (*c)->port, (*c)->contact,
-                             command, (void**) buf, buf_len, &voms_version,
-			     vd, &voms_error);
-       if (ret != 0) {
-          /* success, let's finish */
-          break;
-       }
-       err_msg = VOMS_ErrorMessage(vd, voms_error, NULL, 0);
+       ret = get_voms_ac(ctx, (*c)->host, (*c)->port, (*c)->contact,
+			 command, vd, ac);
+       if (ret == 0)
+	   break;
+
        edg_wlpr_Log(ctx, LOG_WARNING,
-                    "Failed to contact VOMS server %s of VO '%s': %s",
-                    (*c)->host, (*voms_cert)->voname, err_msg);
-       free(err_msg);
+		    "Failed to get attributes from VOMS server %s of VO '%s': %s",
+		    (*c)->host, (*voms_cert)->voname,
+		    glite_renewal_core_get_err(ctx));
+       glite_renewal_core_reset_err(ctx);
    }
-   ret = (ret == 0) ? -1 : 0;
 
    if (ret)
-       glite_renewal_core_set_err(ctx, "Failed to contact all known VOMS servers for VO '%s'",
-				  (*voms_cert)->voname);
+       glite_renewal_core_set_err(ctx,
+	       "Failed to contact all known VOMS servers for VO '%s'",
+		(*voms_cert)->voname);
 
 end:
-   VOMS_DeleteContacts(voms_contacts);
-
+   if (voms_contacts)
+       VOMS_DeleteContacts(voms_contacts);
    if (command)
       free(command);
+   if (voms_server)
+       free(voms_server);
 
    return ret;
 }
@@ -277,12 +289,12 @@ renew_voms_certs(glite_renewal_core_context ctx, const char *cur_file, const cha
    int ret;
    X509 *cert = NULL;
    STACK_OF(X509) *chain = NULL;
-   char *buf = NULL;
-   size_t buf_len = 0;
    X509_EXTENSION *extension = NULL;
    char *old_env_proxy = getenv("X509_USER_PROXY");
    char *old_env_cert = getenv("X509_USER_CERT");
    char *old_env_key = getenv("X509_USER_KEY");
+   AC *ac = NULL;
+   AC **aclist = NULL, **l;
 
    setenv("X509_USER_PROXY", cur_file, 1);
    setenv("X509_USER_CERT", renewed_file, 1);
@@ -297,31 +309,32 @@ renew_voms_certs(glite_renewal_core_context ctx, const char *cur_file, const cha
       goto end;
 
    for (voms_cert = vd->data; voms_cert && *voms_cert; voms_cert++) {
-      char *tmp, *ptr;
-      size_t tmp_len;
-
-      ret = renew_voms_cert(ctx, vd, voms_cert, &tmp, &tmp_len);
+      ret = renew_voms_cert(ctx, vd, voms_cert, &ac);
       if (ret)
 	 goto end;
-      ptr = realloc(buf, buf_len + tmp_len);
-      if (ptr == NULL) {
-         ret = ENOMEM;
-         goto end;
+
+      l = (AC **)listadd((char **)aclist, (char *)ac, sizeof(AC *));
+      if (l == NULL) {
+	  glite_renewal_core_set_err(ctx, "Not enough memory when obtaining VOMS ACs");
+	  ret = ENOMEM;
+	  goto end;
       }
-      buf = ptr;
-      memcpy(buf + buf_len, tmp, tmp_len);
-      buf_len += tmp_len;
+      aclist = l;
    }
 
-   if (buf == NULL) {
-      /* no extension renewed, return */
-      ret = 0;
-      goto end;
+   if (aclist == NULL) {
+       ret = -1;
+       glite_renewal_core_set_err(ctx, "No VOMS attributes found in proxy");
+       goto end;
    }
 
-   ret = my_VOMS_Export(ctx, buf, buf_len, &extension);
-   if (ret)
-      goto end;
+   extension = X509V3_EXT_conf_nid(NULL, NULL, OBJ_txt2nid("acseq"), (char*)aclist);
+   if (extension == NULL) {
+       ret = -1;
+       glite_renewal_core_set_err(ctx, "Failed to construct X.509 extension");
+       goto end;
+   }
+   aclist = NULL;
 
    ret = load_proxy(ctx, renewed_file, NULL, NULL, NULL, &new_proxy);
    if (ret)
@@ -347,8 +360,10 @@ end:
       globus_gsi_cred_handle_destroy(cur_proxy);
    if (new_proxy)
       globus_gsi_cred_handle_destroy(new_proxy);
-   if (buf)
-      free(buf);
+   if (extension)
+       X509_EXTENSION_free(extension);
+   if (aclist)
+       listfree((char **)aclist, (void(*)(void *))AC_free);
 
    return ret;
 }
