@@ -382,7 +382,7 @@ get_voms_fqans(glite_renewal_core_context ctx, const char *file)
    for (voms_cert = voms_info->data; voms_cert && *voms_cert; voms_cert++) {
        for (f = (*voms_cert)->fqan; f && *f; f++) {
 	   flen = strlen(*f);
-	   tmp = realloc(fqans, len + ((len) ? 1 : 0) + flen + 1);
+	   tmp = realloc(fqans, len + flen + 1);
 	   if (tmp == NULL) {
 	       free(fqans);
 	       fqans = NULL;
@@ -394,7 +394,7 @@ get_voms_fqans(glite_renewal_core_context ctx, const char *file)
 	   else
 	       strcat(fqans, ":");
 	   strcat(fqans, *f);
-	   len += flen;
+	   len += flen + 1;
        }
    }
 
