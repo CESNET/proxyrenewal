@@ -273,6 +273,6 @@ watchdog_start(glite_renewal_core_context ctx)
        renewal(ctx, force_renewal, &num);
        count += num;
    }
-   edg_wlpr_Log(ctx, LOG_DEBUG, "Terminating after %d renewal attempts", count);
+   edg_wlpr_Log(ctx, LOG_NOTICE, "Terminating after %d renewal attempts", count);
    exit(0);
 }

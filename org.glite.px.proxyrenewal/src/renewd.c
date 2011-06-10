@@ -202,7 +202,7 @@ doit(glite_renewal_core_context ctx, int sock)
 	 ret = start_watchdog(ctx, &newpid);
 	 if (ret)
 	    return ret;
-	 edg_wlpr_Log(ctx, LOG_DEBUG, "Renewal slave process re-started");
+	 edg_wlpr_Log(ctx, LOG_NOTICE, "Renewal slave process re-started as %d", newpid);
 	 child_died = 0;
 	 continue;
       }
