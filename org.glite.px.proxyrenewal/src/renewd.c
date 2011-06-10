@@ -171,7 +171,8 @@ proto(glite_renewal_core_context ctx, int sock)
    ret = edg_wlpr_Write(sock, &timeout, buf, strlen(buf) + 1);
    free(buf);
    if (ret) {
-      edg_wlpr_Log(ctx, LOG_ERR, "Error sending response to client: %s",
+      edg_wlpr_Log(ctx, LOG_ERR, "Error sending response of command %d to client: %s",
+		   request.command,
                    edg_wlpr_GetErrorText(ret));
       goto end;
    }
@@ -282,7 +283,8 @@ decode_request(glite_renewal_core_context ctx, const char *msg, const size_t msg
    ret = edg_wlpr_GetToken(msg, msg_len, EDG_WLPR_PROTO_MYPROXY_SERVER,
 	 		   SEPARATORS, 0, &request->myproxy_server);
    if (ret && ret != EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND) {
-      edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading myproxy server specification: %s",
+      edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading myproxy server specification for command %d: %s",
+		   request->command,
                    edg_wlpr_GetErrorText(ret));
       goto err;
    }
@@ -299,7 +301,8 @@ decode_request(glite_renewal_core_context ctx, const char *msg, const size_t msg
    ret = edg_wlpr_GetToken(msg, msg_len, EDG_WLPR_PROTO_PROXY, SEPARATORS, 
 	 		   0, &request->proxy_filename);
    if (ret && ret != EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND) {
-      edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading proxy specification: %s",
+      edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading proxy specification for command %d: %s",
+		   request->command,
                    edg_wlpr_GetErrorText(ret));
       goto err;
    }
@@ -317,7 +320,8 @@ decode_request(glite_renewal_core_context ctx, const char *msg, const size_t msg
    ret = edg_wlpr_GetToken(msg, msg_len, EDG_WLPR_PROTO_JOBID, SEPARATORS,
 	 		   0, &request->jobid);
    if (ret && ret != EDG_WLPR_ERROR_PROTO_PARSE_NOT_FOUND) {
-      edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading JobId : %s",
+      edg_wlpr_Log(ctx, LOG_ERR, "Protocol error reading JobId for command %d: %s",
+		   request->command,
 	    	   edg_wlpr_GetErrorText(ret));
       goto err;
    }
