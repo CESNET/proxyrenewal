@@ -479,7 +479,7 @@ do_listen(glite_renewal_core_context ctx, char *socket_name, int *sock)
       return errno;
    }
 
-   ret = listen(s, 50);
+   ret = listen(s, 128);
    if (ret == -1) {
       edg_wlpr_Log(ctx, LOG_ERR, "listen(): %s", strerror(errno));
       close(s);
