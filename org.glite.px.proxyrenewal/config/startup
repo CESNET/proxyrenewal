@@ -74,6 +74,16 @@ stop()
 {
 	echo -n "Stopping ProxyRenewal Daemon: glite-proxy-renewd ..."
 	killall glite-proxy-renewd
+	try=0
+	while killall -0 glite-proxy-renewd >/dev/null 2>&1; do
+		sleep 1
+		try=`expr $try + 1`
+		if [ $try = 10 ]; then
+			echo " force quit after $try seconds"
+			killall -9 glite-proxy-renewd
+			return 1
+		fi
+	done
 	echo " done"
 }
 

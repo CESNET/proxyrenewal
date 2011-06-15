@@ -254,6 +254,7 @@ watchdog_start(glite_renewal_core_context ctx)
    struct sigaction sa;
    int force_renewal;
    int count = 0, num;
+   sigset_t mask;
    
    memset(&sa,0,sizeof(sa));
    sa.sa_handler = register_signal;
@@ -262,6 +263,14 @@ watchdog_start(glite_renewal_core_context ctx)
    sigaction(SIGQUIT,&sa,NULL);
    sigaction(SIGTERM,&sa,NULL);
    sigaction(SIGPIPE,&sa,NULL);
+
+   sigemptyset(&mask);
+   sigaddset(&mask, SIGUSR1);
+   sigaddset(&mask, SIGINT);
+   sigaddset(&mask, SIGQUIT);
+   sigaddset(&mask, SIGTERM);
+   sigaddset(&mask, SIGPIPE);
+   sigprocmask(SIG_UNBLOCK, &mask, NULL);
 
    while (count < RENEWAL_COUNTS_MAX && !die) {
        received_signal = -1;

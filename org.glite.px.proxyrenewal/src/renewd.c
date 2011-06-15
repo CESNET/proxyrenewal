@@ -524,6 +524,7 @@ int main(int argc, char *argv[])
    struct sigaction	sa;
    const char *s = NULL;
    glite_renewal_core_context ctx = NULL;
+   sigset_t mask;
 
    progname = strrchr(argv[0],'/');
    if (progname) progname++; 
@@ -571,9 +572,6 @@ int main(int argc, char *argv[])
       exit(1);
    }
 
-   globus_module_activate(GLOBUS_GSI_CERT_UTILS_MODULE);
-   globus_module_activate(GLOBUS_GSI_PROXY_MODULE);
-
    if (!debug) {
       /* chdir ? */
       if (daemon(1,0) == -1) {
@@ -582,6 +580,9 @@ int main(int argc, char *argv[])
       }
       openlog(progname, LOG_PID, LOG_DAEMON);
    }
+
+   globus_module_activate(GLOBUS_GSI_CERT_UTILS_MODULE);
+   globus_module_activate(GLOBUS_GSI_PROXY_MODULE);
 
    if (cert)
       setenv("X509_USER_CERT", cert, 1);
@@ -602,6 +603,14 @@ int main(int argc, char *argv[])
    sigaction(SIGTERM,&sa,NULL);
    sigaction(SIGCHLD,&sa,NULL);
    sigaction(SIGPIPE,&sa,NULL);
+
+   sigemptyset(&mask);
+   sigaddset(&mask, SIGINT);
+   sigaddset(&mask, SIGQUIT);
+   sigaddset(&mask, SIGTERM);
+   sigaddset(&mask, SIGCHLD);
+   sigaddset(&mask, SIGPIPE);
+   sigprocmask(SIG_UNBLOCK, &mask, NULL);
 
    ret = start_watchdog(ctx, &pid);
    if (ret)
