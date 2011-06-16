@@ -41,3 +41,14 @@
 - Proper sysconf (ETICS will relocate $PREFIX to /opt/glite for gLite)
 - Logging output adjusted for clarity
 
+1.3.21-1
+- Makefile cleanup
+- Work around problems with threaded globus by setting signal mask (SB #81371)
+- Added preventive 'kill -9' into the startup script 
+- Improved logging, more descriptive error messages
+- Corrected log levels
+- Backlog queue of listen(2) increased
+- Command identifier added to some logs
+- Correct handling of multiple VOMS ACs (from multiple VOMS servers)
+- Memory handling fixes
+
