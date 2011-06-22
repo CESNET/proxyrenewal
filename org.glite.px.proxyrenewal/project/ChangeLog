@@ -52,3 +52,6 @@
 - Correct handling of multiple VOMS ACs (from multiple VOMS servers)
 - Memory handling fixes
 
+1.3.21-2
+- Module rebuilt
+
