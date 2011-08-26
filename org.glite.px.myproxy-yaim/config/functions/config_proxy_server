@@ -113,6 +113,8 @@ done
 
 /sbin/chkconfig --add myproxy-server
 
+/sbin/chkconfig myproxy-server on
+
 #
 # check if the configuration changed and reload/replace only if necessary
 #
