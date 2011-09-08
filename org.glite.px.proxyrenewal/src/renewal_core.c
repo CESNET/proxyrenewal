@@ -138,19 +138,33 @@ glite_renewal_core_renew(glite_renewal_core_context ctx,
    int tmp_fd;
    int ret = -1;
    const char *server = NULL;
-   myproxy_socket_attrs_t *socket_attrs;
-   myproxy_request_t      *client_request;
-   myproxy_response_t     *server_response;
+   myproxy_socket_attrs_t *socket_attrs = NULL;
+   myproxy_request_t      *client_request = NULL;
+   myproxy_response_t     *server_response = NULL;
    char *renewed_proxy;
    int voms_exts;
 
    socket_attrs = malloc(sizeof(*socket_attrs));
+   if (socket_attrs == NULL) {
+       glite_renewal_core_set_err(ctx, "Not enough memory");
+       return ENOMEM;
+   }
    memset(socket_attrs, 0, sizeof(*socket_attrs));
 
    client_request = malloc(sizeof(*client_request));
+    if (client_request == NULL) {
+	glite_renewal_core_set_err(ctx, "Not enough memory");
+	ret = ENOMEM;
+	goto end;
+    }
    memset(client_request, 0, sizeof(*client_request));
 
    server_response = malloc(sizeof(*server_response));
+   if (server_response == NULL) {
+       glite_renewal_core_set_err(ctx, "Not enough memory");
+       ret = ENOMEM;
+       goto end;
+   }
    memset(server_response, 0, sizeof(*server_response));
 
    myproxy_set_delegation_defaults(socket_attrs, client_request);
@@ -184,13 +198,29 @@ glite_renewal_core_renew(glite_renewal_core_context ctx,
    socket_attrs->psport = (myproxy_port) ? myproxy_port : MYPROXY_SERVER_PORT;
 
    verror_clear();
+   ret = myproxy_init_client(socket_attrs);
+   if (ret < 0) {
+       glite_renewal_core_set_err(ctx, "Error connecting Myproxy server %s for proxy %s: %s",
+				  socket_attrs->pshost, current_proxy, verror_get_string());
+       ret = EDG_WLPR_ERROR_MYPROXY;
+       goto end;
+   }
+
+   GSI_SOCKET_allow_anonymous(socket_attrs->gsi_socket, 0);
+   ret = myproxy_authenticate_init(socket_attrs, NULL);
+   if (ret < 0) {
+       glite_renewal_core_set_err(ctx, "Error authenticating MyProxy server %s for proxy %s: %s",
+				  socket_attrs->pshost, current_proxy, verror_get_string());
+       ret = EDG_WLPR_ERROR_MYPROXY;
+       goto end;
+   }
+
    ret = myproxy_get_delegation(socket_attrs, client_request, (char *) current_proxy,
 	                        server_response, tmp_proxy);
    if (ret == 1) {
       ret = EDG_WLPR_ERROR_MYPROXY;
-      glite_renewal_core_set_err(ctx, "Error contacting MyProxy server for proxy %s: %s",
-	                         current_proxy, verror_get_string());
-      verror_clear();
+      glite_renewal_core_set_err(ctx, "Error renewing proxy %s from MyProxy server %s: %s",
+	                         current_proxy, socket_attrs->pshost, verror_get_string());
       goto end;
    }
 
@@ -235,6 +265,7 @@ end:
    if (ret)
       unlink(tmp_proxy);
    myproxy_free(socket_attrs, client_request, server_response);
+   verror_clear();
 
    return ret;
 }
