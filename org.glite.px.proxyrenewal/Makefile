@@ -22,7 +22,7 @@ stagedir=.
 distdir=.
 globalprefix=glite
 lbprefix=lb
-package=glite-security-proxyrenewal
+package=glite-px-proxyrenewal
 version=0.0.0
 PREFIX=/opt/glite
 libdir=lib
@@ -204,4 +204,7 @@ clean:
 	$(RM) ${MAN1_GZ} ${MAN8_GZ}
 	$(RM) -rf .libs
 
-.PHONY: default all compile examples check stage dist distsrc distbin install clean
+distclean:
+	rm -rvf Makefile.inc *.spec debian/
+
+.PHONY: default all compile examples check stage dist distsrc distbin install clean distclean
