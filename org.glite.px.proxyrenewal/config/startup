@@ -5,9 +5,9 @@
 # Required-Stop: $remote_fs $network $syslog
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
-# chkconfig: 345 75 25
 # Description: Proxyrenewal deamon
 ### END INIT INFO
+# chkconfig: 345 75 25
 #
 # Copyright (c) Members of the EGEE Collaboration. 2004-2010.
 # See http://www.eu-egee.org/partners/ for details on the copyright
@@ -29,6 +29,7 @@ GLITE_PX_LOCATION=${GLITE_PX_LOCATION:-'@glite_prefix@'}
 GLITE_PX_LOCATION_ETC=${GLITE_PX_LOCATION_ETC:-'@glite_etc@'}
 GLITE_PX_LOCATION_VAR=${GLITE_PX_LOCATION_VAR:-'@glite_var@'}
 
+[ -f /etc/profile.d/grid-env.sh ] && . /etc/profile.d/grid-env.sh
 [ -f /etc/glite.conf ] && . /etc/glite.conf
 [ -f $GLITE_PX_LOCATION_ETC/glite-wms.conf ] && . $GLITE_PX_LOCATION_ETC/glite-wms.conf
 [ -f $HOME/.glite.conf ] && . $HOME/.glite.conf
