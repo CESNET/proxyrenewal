@@ -35,6 +35,9 @@ globus_prefix=/opt/globus
 voms_prefix=${glite_location}
 
 -include Makefile.inc
+-include ${top_srcdir}/project/version.properties
+
+version=${module.version}
 
 VPATH:=${top_srcdir}/src:${top_srcdir}/examples
 
