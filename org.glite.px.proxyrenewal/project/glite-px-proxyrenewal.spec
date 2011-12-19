@@ -89,14 +89,13 @@ rm -rf $RPM_BUILD_ROOT
 %pre -n %{name}-clients
 getent group glite >/dev/null || groupadd -r glite
 getent passwd glite >/dev/null || useradd -r -g glite -d /var/glite -c "gLite user" glite
+mkdir -p /var/glite /var/log/glite 2>/dev/null || :
+chown glite:glite /var/glite /var/log/glite
+exit 0
 
 
 %post -n %{name}-clients
 /sbin/chkconfig --add glite-proxy-renewald
-if [ $1 -eq 1 ] ; then
-	# XXX: or rather to detect finalized set-up in the start-up scripts?
-	/sbin/chkconfig glite-proxy-renewald off
-fi
 
 
 %preun -n %{name}-clients
@@ -108,8 +107,7 @@ fi
 
 %postun -n %{name}-clients
 if [ "$1" -ge "1" ] ; then
-	# XXX: detect finalized set-up in the start-up scripts
-	/sbin/service glite-proxy-renewald restart >/dev/null 2>&1 || :
+	/sbin/service glite-proxy-renewald condrestart >/dev/null 2>&1 || :
 fi
 
 
