@@ -13,7 +13,8 @@ BuildRequires: myproxy-devel%{?_isa}
 BuildRequires: voms-devel%{?_isa}
 Requires: %{name}-devel%{?_isa}
 Requires: %{name}-clients
-Obsoletes: glite-security-proxyrenewal <= 1.3.11-4
+Obsoletes: glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
+Obsoletes: glite-px-proxyrenewal%{?_isa} <= 1.3.22
 Provides: %{name}%{?_isa} = %{version}-%{release}
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 AutoReqProv: yes
@@ -28,6 +29,8 @@ proxyrenewal library.
 %package -n lib%{name}
 Summary: @SUMMARY@
 Group: System Environment/Libraries
+Obsoletes: glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
+Obsoletes: glite-px-proxyrenewal%{?_isa} <= 1.3.22
 
 
 %description -n lib%{name}
@@ -38,6 +41,8 @@ Group: System Environment/Libraries
 Summary: Development files for gLite proxyrenewal library
 Group: Development/Libraries
 Requires: lib%{name}%{?_isa} = %{version}-%{release}
+Obsoletes: glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
+Obsoletes: glite-px-proxyrenewal%{?_isa} <= 1.3.22
 
 
 %description -n %{name}-devel
@@ -48,6 +53,7 @@ proxyrenewal library.
 %package -n %{name}-clients
 Summary: Daemon and client program for gLite proxyrenewal
 Group: System Environment/Base
+Obsoletes: glite-px-proxyrenewal%{?_isa} <= 1.3.22
 
 
 %description -n %{name}-clients
