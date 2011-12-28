@@ -1,4 +1,4 @@
-Summary: Virtual package for development with gLite proxyrenewal library
+Summary: Virtual package with runtime and development files of gLite proxyrenewal
 Name: glite-px-proxyrenewal
 Version: @MAJOR@.@MINOR@.@REVISION@
 Release: @AGE@%{?dist}
@@ -22,7 +22,7 @@ Source: http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%{version
 
 %description
 This is a virtual package providing runtime and development files for gLite
-proxyrenewal library.
+proxyrenewal.
 
 
 %package libs
@@ -48,12 +48,12 @@ proxyrenewal library.
 
 
 %package clients
-Summary: Daemon and client program for gLite proxyrenewal
+Summary: gLite proxyrenewal daemon and client
 Group: System Environment/Base
 
 
 %description clients
-This package contains daemon and client program for gLite proxyrenewal.
+This package contains daemon and client program of gLite proxyrenewal.
 
 
 %prep

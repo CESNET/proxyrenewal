@@ -169,7 +169,7 @@ ${EXAMPLES}: %: %.o
 
 ${MAN_GZ}: ${MAN}
 	cp $? .
-	gzip -f $(notdir $?)
+	gzip -9 -f $(notdir $?)
 
 stage: compile
 	$(MAKE) install PREFIX=${stagedir} staging=1

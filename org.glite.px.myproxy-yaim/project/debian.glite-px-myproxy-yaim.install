@@ -1,0 +1,6 @@
+opt/glite/release/glite-PX/*
+opt/glite/yaim/defaults/*
+opt/glite/yaim/etc/versions/*
+opt/glite/yaim/examples/siteinfo/services/*
+opt/glite/yaim/functions/*
+opt/glite/yaim/node-info.d/*
