@@ -12,7 +12,7 @@ DM-Upload-Allowed: yes
 Package: glite-px-proxyrenewal
 Section: misc
 Architecture: any
-Depends: ${misc:Depends}, libglite-security-proxyrenewal2 (= ${binary:Version}), libglite-security-proxyrenewal-dev (= ${binary:Version}), glite-px-proxyrenewal-clients (= ${binary:Version})
+Depends: ${misc:Depends}, libglite-security-proxyrenewal2 (= ${binary:Version}), libglite-security-proxyrenewal-dev (= ${binary:Version}), glite-px-proxyrenewal-progs (= ${binary:Version})
 Description: Virtual package with runtime and development files of gLite proxyrenewal
  This is a virtual package providing runtime and development files for gLite
  proxyrenewal.
@@ -33,7 +33,7 @@ Description: Development files for gLite proxyrenewal library
  This package contains development libraries and header files for gLite
  proxyrenewal library.
 
-Package: glite-px-proxyrenewal-clients
+Package: glite-px-proxyrenewal-progs
 Section: misc
 Architecture: any
 Priority: extra

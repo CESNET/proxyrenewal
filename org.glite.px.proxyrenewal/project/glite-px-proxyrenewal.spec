@@ -12,7 +12,7 @@ BuildRequires: libtool
 BuildRequires: myproxy-devel%{?_isa}
 BuildRequires: voms-devel%{?_isa}
 Requires: %{name}-devel%{?_isa}
-Requires: %{name}-clients
+Requires: %{name}-progs
 Obsoletes: glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
 Provides: %{name}%{?_isa} = %{version}-%{release}
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
@@ -47,12 +47,12 @@ This package contains development libraries and header files for gLite
 proxyrenewal library.
 
 
-%package clients
+%package progs
 Summary: gLite proxyrenewal daemon and client
 Group: System Environment/Base
 
 
-%description clients
+%description progs
 This package contains daemon and client program of gLite proxyrenewal.
 
 
@@ -88,7 +88,7 @@ rm -rf $RPM_BUILD_ROOT
 %postun libs -p /sbin/ldconfig
 
 
-%pre clients
+%pre progs
 getent group glite >/dev/null || groupadd -r glite
 getent passwd glite >/dev/null || useradd -r -g glite -d /var/glite -c "gLite user" glite
 mkdir -p /var/glite /var/log/glite 2>/dev/null || :
@@ -96,18 +96,18 @@ chown glite:glite /var/glite /var/log/glite
 exit 0
 
 
-%post clients
+%post progs
 /sbin/chkconfig --add glite-proxy-renewald
 
 
-%preun clients
+%preun progs
 if [ $1 -eq 0 ] ; then
 	/sbin/service glite-proxy-renewald stop >/dev/null 2>&1
 	/sbin/chkconfig --del glite-proxy-renewald
 fi
 
 
-%postun clients
+%postun progs
 if [ "$1" -ge "1" ] ; then
 	/sbin/service glite-proxy-renewald condrestart >/dev/null 2>&1 || :
 fi
@@ -137,7 +137,7 @@ fi
 /usr/%{_lib}/libglite_security_proxyrenewal_core.so
 
 
-%files clients
+%files progs
 %defattr(-,root,root)
 /etc/init.d/glite-proxy-renewald
 /usr/bin/glite-proxy-renew
