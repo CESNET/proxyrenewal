@@ -34,3 +34,6 @@
 4.1.5-1
 - Start automatically on power up
 
+4.1.6-1
+- Application of Debian packaging rules
+
