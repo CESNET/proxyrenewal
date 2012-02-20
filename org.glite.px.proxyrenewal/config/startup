@@ -36,6 +36,8 @@ GLITE_PX_LOCATION_VAR=${GLITE_PX_LOCATION_VAR:-'@glite_var@'}
 
 PROXY_REPOSITORY="$GLITE_PX_LOCATION_VAR/spool/glite-renewd"
 
+lockfile=/var/lock/glite-proxy-renewald
+
 unset creds
 
 start()
@@ -77,7 +79,14 @@ start()
 	
 	su - $GLITE_USER -c "VOMS_USERCONF=$user_voms_config \
 		$GLITE_PX_LOCATION/bin/glite-proxy-renewd \
-		-r $PROXY_REPOSITORY $creds -A" && echo " done"
+		-r $PROXY_REPOSITORY $creds -A"
+
+	if [ $? -eq 0 ]; then
+		echo " done"
+		touch $lockfile
+	else
+		echo " FAILED"
+	fi
 }
 
 stop()
