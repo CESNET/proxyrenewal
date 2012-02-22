@@ -1,4 +1,4 @@
-Summary: Virtual package with runtime and development files of gLite proxyrenewal
+Summary: Virtual package with run-time and development files of gLite proxyrenewal
 Name: glite-px-proxyrenewal
 Version: @MAJOR@.@MINOR@.@REVISION@
 Release: @AGE@%{?dist}
@@ -14,14 +14,13 @@ BuildRequires: voms-devel%{?_isa}
 Requires: %{name}-devel%{?_isa}
 Requires: %{name}-progs
 Obsoletes: glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
-Provides: %{name}%{?_isa} = %{version}-%{release}
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 AutoReqProv: yes
 Source: http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%{version}/src/%{name}-@VERSION@.src.tar.gz
 
 
 %description
-This is a virtual package providing runtime and development files for gLite
+This is a virtual package providing run-time and development files for gLite
 proxyrenewal.
 
 
