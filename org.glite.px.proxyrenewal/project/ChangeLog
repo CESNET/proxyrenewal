@@ -64,3 +64,7 @@
 - Start-up scripts according to Fedora Packaging Guidelines
 - Standalone start-up scripts
 
+1.3.24-1
+- Packaging improvements (rpmlint and lintian checks)
+- Service lock file
+
