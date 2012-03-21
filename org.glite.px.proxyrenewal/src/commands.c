@@ -598,20 +598,28 @@ end:
 int
 encode_record(glite_renewal_core_context ctx, proxy_record *record, char **line)
 {
-   char tmp_line[1024];
+   char *tmp_line = NULL;
    size_t jobids_len = 0;
-   int i;
+   int ret;
    
-   snprintf(tmp_line, sizeof(tmp_line), "suffix=%d, unique=%d, voms_exts=%d, server=%s, next_renewal=%ld, end_time=%ld",
+   ret = asprintf(&tmp_line, "suffix=%d, unique=%d, voms_exts=%d, server=%s, next_renewal=%ld, end_time=%ld",
 	   record->suffix, record->unique, record->voms_exts,
 	   (record->myproxy_server) ? record->myproxy_server : "",
 	   record->next_renewal, record->end_time);
-   if (record->fqans) {
-       strncat(tmp_line, ", fqans=", sizeof(tmp_line));
-       strncat(tmp_line, record->fqans, sizeof(tmp_line));
-   }
-   *line = strdup(tmp_line);
+   if (ret == -1)
+       return ENOMEM;
 
+   if (record->fqans) {
+       char *l;
+
+       ret = asprintf(&l, "%s, fqans=%s", tmp_line, record->fqans);
+       if (ret == -1) {
+	   free(tmp_line);
+	   return ENOMEM;
+       }
+       tmp_line = l;
+   }
+   *line = tmp_line;
    return 0;
 }
 
