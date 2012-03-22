@@ -199,8 +199,9 @@ get_delta(glite_renewal_core_context ctx, time_t current_time, time_t end_time)
    return (remaining_life - life_to_lose);
 }
 
-int
-get_times(glite_renewal_core_context ctx, char *proxy_file, proxy_record *record)
+static int
+get_times(glite_renewal_core_context ctx, char *proxy_file,
+	  time_t *not_after_x509, time_t *not_after_voms)
 {
    X509 *cert = NULL;
    STACK_OF(X509) *chain = NULL;
@@ -209,7 +210,6 @@ get_times(glite_renewal_core_context ctx, char *proxy_file, proxy_record *record
    struct vomsdata *voms_data = NULL;
    struct voms **voms_cert = NULL;
    ASN1_UTCTIME *t;
-   time_t delta;
    char *s, *c;
 
    ret = load_proxy(ctx, proxy_file, &cert, NULL, &chain, NULL); 
@@ -257,22 +257,9 @@ get_times(glite_renewal_core_context ctx, char *proxy_file, proxy_record *record
           ASN1_UTCTIME_free(t);
           free(s);
       }
-      s = ctime(&end_time);
-      if ((c = strchr(s, '\n')))
-         *c = '\0';
-      edg_wlpr_Log(ctx, LOG_DEBUG,
-                   "The shortest VOMS cert expires on %s", s);
    }
 
    globus_gsi_cert_utils_make_time(X509_get_notAfter(cert), &end_time_x509);
-   if (end_time_x509 < end_time || end_time == 0)
-      end_time = end_time_x509;
-
-   s = ctime(&end_time_x509);
-   if ((c = strchr(s, '\n')))
-      *c = '\0';
-   edg_wlpr_Log(ctx, LOG_DEBUG, "X.509 proxy credential expires on %s", s);
-
    now = time(NULL);
    if (end_time_x509 + RENEWAL_CLOCK_SKEW < now) {
       glite_renewal_core_set_err(ctx, "Expired proxy in %s", proxy_file);
@@ -291,20 +278,9 @@ get_times(glite_renewal_core_context ctx, char *proxy_file, proxy_record *record
       }
    }
 
-   if (now + condor_limit > end_time_x509) {
-      edg_wlpr_Log(ctx, LOG_WARNING, "Remaining proxy lifetime fell below the value of the Condor limit!");
-      delta = 0;
-   } else
-      delta = get_delta(ctx, now, end_time);
-
-   record->next_renewal = now + delta;
-   record->end_time = end_time_x509;
+   *not_after_voms = end_time;
+   *not_after_x509 = end_time_x509;
    ret = 0;
-
-   s = ctime(&record->next_renewal);
-   if ((c = strchr(s, '\n')))
-      *c = '\0';
-   edg_wlpr_Log(ctx, LOG_DEBUG, "Next renewal will be attempted on %s", s);
 
 end:
    if (voms_data)
@@ -315,6 +291,60 @@ end:
       X509_free(cert);
 
    return ret;
+}
+
+static int
+schedule_renewal(glite_renewal_core_context ctx, time_t end_time_x509,
+		 time_t end_time_voms, proxy_record *record)
+{
+    time_t end_time, delta, now;
+    char *s, *c;
+
+    s = ctime(&end_time_x509);
+    if ((c = strchr(s, '\n')))
+	*c = '\0';
+    edg_wlpr_Log(ctx, LOG_DEBUG, "X.509 proxy credential expires on %s", s);
+
+    if (end_time_voms > 0) {
+	s = ctime(&end_time_voms);
+	if ((c = strchr(s, '\n')))
+	    *c = '\0';
+	edg_wlpr_Log(ctx, LOG_DEBUG,
+		"The shortest VOMS cert expires on %s", s);
+    }
+
+    end_time = (end_time_x509 < end_time_voms || end_time_voms == 0) ?
+	end_time_x509 : end_time_voms;
+
+    now = time(NULL);
+    if (now + condor_limit > end_time_x509) {
+	edg_wlpr_Log(ctx, LOG_WARNING, "Remaining proxy lifetime fell below the value of the Condor limit!");
+	delta = 0;
+    } else
+	delta = get_delta(ctx, now, end_time);
+
+    record->next_renewal = now + delta;
+    record->end_time = end_time_x509;
+
+    s = ctime(&record->next_renewal);
+    if ((c = strchr(s, '\n')))
+	*c = '\0';
+    edg_wlpr_Log(ctx, LOG_DEBUG, "Next renewal will be attempted on %s", s);
+
+    return 0;
+}
+
+static int
+set_renewal_times(glite_renewal_core_context ctx, char *proxy_file, proxy_record *record)
+{
+    int ret;
+    time_t end_time_x509 = 0, end_time_voms = 0;
+
+    ret = get_times(ctx, proxy_file, &end_time_x509, &end_time_voms);
+    if (ret)
+	return ret;
+
+    return schedule_renewal(ctx, end_time_x509, end_time_voms, record);
 }
 
 static int
@@ -967,6 +997,7 @@ register_proxy(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wl
    int last_suffix;
    char *basename = NULL;
    char filename[FILENAME_MAX];
+   time_t end_time_x509, end_time_voms;
 
    assert(request != NULL);
    assert(response != NULL);
@@ -1014,7 +1045,7 @@ register_proxy(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wl
       ret = copy_file(ctx, request->proxy_filename, filename);
       if (ret)
 	 goto end;
-      ret = get_times(ctx, filename, &record);
+      ret = set_renewal_times(ctx, filename, &record);
       if (ret)
 	 goto end;
       record.suffix = suffix;
@@ -1026,11 +1057,25 @@ register_proxy(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wl
       edg_wlpr_Log(ctx, LOG_DEBUG, "Created a new proxy file in repository (%s)",
 	           filename);
    } else {
+      ret = get_times(ctx, request->proxy_filename, &end_time_x509, &end_time_voms);
+      if (ret)
+	  goto end;
+
+      snprintf(filename, sizeof(filename), "%s.%d", basename, record.suffix);
+      if (record.end_time < end_time_x509 &&
+	      (end_time_voms == 0 || record.next_renewal < end_time_voms)) {
+	  ret = copy_file(ctx, request->proxy_filename, filename);
+	  if (ret)
+	      goto end;
+	  edg_wlpr_Log(ctx, LOG_DEBUG, "Proxy %s of job %s has replaced the registered one.",
+		       request->proxy_filename, request->jobid);
+	  schedule_renewal(ctx, end_time_x509, end_time_voms, &record);
+      }
+
       ret = realloc_prd_list(ctx, &record.jobids);
       if (ret)
 	 goto end;
       record.jobids.val[record.jobids.len - 1] = strdup(request->jobid);
-      snprintf(filename, sizeof(filename), "%s.%d", basename, record.suffix);
       edg_wlpr_Log(ctx, LOG_DEBUG, "Incremented counter on %s", filename);
    }
 
@@ -1316,9 +1361,9 @@ update_db(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wlpr_Re
 	       record.myproxy_server = server;
 	       edg_wlpr_Log(ctx, LOG_WARNING, "Removed expired proxy %s", cur_proxy);
 	    } else
-	       get_times(ctx, cur_proxy, &record);
+	       set_renewal_times(ctx, cur_proxy, &record);
 	 } else {
-	    ret = get_times(ctx, proxy, &record);
+	    ret = set_renewal_times(ctx, proxy, &record);
 	    (ret == 0) ? rename(proxy, cur_proxy) : unlink(proxy);
 	 }
       }

@@ -69,9 +69,6 @@ get_proxy(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wlpr_Re
 void
 update_db(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wlpr_Response *response);
 
-int
-get_times(glite_renewal_core_context ctx, char *proxy_file, proxy_record *record);
-
 void
 watchdog_start(glite_renewal_core_context ctx);
 
