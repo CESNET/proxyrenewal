@@ -426,8 +426,6 @@ free_prd_list(glite_renewal_core_context ctx, prd_list *list)
 void
 free_record(glite_renewal_core_context ctx, proxy_record *record)
 {
-   int i;
-
    if (record == NULL)
       return;
    if (record->myproxy_server)
@@ -506,8 +504,8 @@ save_jobids(glite_renewal_core_context ctx, const char *basename, proxy_record *
 	fputc('\n', f);
     }
     fclose(f);
+    return 0;
 }
-
 
 static int
 get_jobids(glite_renewal_core_context ctx, const char *basename, const char *msg, const size_t msg_len, proxy_record *record)
@@ -629,7 +627,6 @@ int
 encode_record(glite_renewal_core_context ctx, proxy_record *record, char **line)
 {
    char *tmp_line = NULL;
-   size_t jobids_len = 0;
    int ret;
    
    ret = asprintf(&tmp_line, "suffix=%d, unique=%d, voms_exts=%d, server=%s, next_renewal=%ld, end_time=%ld",

@@ -517,7 +517,6 @@ int main(int argc, char *argv[])
    int   sock;
    char  *progname;
    int   opt;
-   int   fd;
    char  sockname[PATH_MAX];
    int   ret;
    pid_t pid;
