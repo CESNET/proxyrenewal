@@ -1,0 +1,5 @@
+/sbin/ldconfig
+
+if [ "$1" -ge "1" ] ; then
+	/sbin/service glite-proxy-renewald condrestart >/dev/null 2>&1 || :
+fi

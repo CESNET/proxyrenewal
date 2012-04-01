@@ -98,6 +98,9 @@ exit 0
 
 %post progs
 /sbin/chkconfig --add glite-proxy-renewald
+if [ $1 -eq 1 ] ; then
+	/sbin/chkconfig glite-proxy-renewald off
+fi
 
 
 %preun progs

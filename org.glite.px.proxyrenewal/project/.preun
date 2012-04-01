@@ -1,0 +1,4 @@
+if [ $1 -eq 0 ] ; then
+	/sbin/service glite-proxy-renewald stop >/dev/null 2>&1
+	/sbin/chkconfig --del glite-proxy-renewald
+fi
