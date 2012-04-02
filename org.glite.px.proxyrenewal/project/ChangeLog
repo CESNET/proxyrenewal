@@ -68,3 +68,11 @@
 - Packaging improvements (rpmlint and lintian checks)
 - Service lock file
 
+1.3.25-1
+- Do not set up daemons to start during installation. Starting scripts configured by yaim
+- Compile-time warning fixes
+- Newer proxy replaces older on registration 
+  - Saves renewal attempts
+  - Avoids race conditions (SB #90610)
+- Dynamic memory allocation in encode_record() so it always has sufficient space (SB #92806)
+
