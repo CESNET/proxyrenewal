@@ -76,3 +76,6 @@
   - Avoids race conditions (SB #90610)
 - Dynamic memory allocation in encode_record() so it always has sufficient space (SB #92806)
 
+1.3.25-2
+- Module rebuilt with fixed soname
+
