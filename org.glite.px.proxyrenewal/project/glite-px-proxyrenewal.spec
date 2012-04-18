@@ -124,10 +124,7 @@ fi
 %defattr(-,root,root)
 %dir /usr/share/doc/%{name}-%{version}/
 /usr/share/doc/%{name}-%{version}/LICENSE
-/usr/%{_lib}/libglite_security_proxyrenewal.so.2.@MINOR@.@REVISION@
-/usr/%{_lib}/libglite_security_proxyrenewal.so.2
-/usr/%{_lib}/libglite_security_proxyrenewal_core.so.2.@MINOR@.@REVISION@
-/usr/%{_lib}/libglite_security_proxyrenewal_core.so.2
+/usr/%{_lib}/libglite_security_proxyrenewal.so.*
 
 
 %files devel
