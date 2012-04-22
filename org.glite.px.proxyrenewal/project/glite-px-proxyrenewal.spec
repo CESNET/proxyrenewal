@@ -125,6 +125,7 @@ fi
 %dir /usr/share/doc/%{name}-%{version}/
 /usr/share/doc/%{name}-%{version}/LICENSE
 /usr/%{_lib}/libglite_security_proxyrenewal.so.*
+/usr/%{_lib}/libglite_security_proxyrenewal_core.so.*
 
 
 %files devel
