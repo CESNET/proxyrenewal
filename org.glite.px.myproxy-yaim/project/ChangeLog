@@ -43,3 +43,6 @@
 4.1.6-3
 - Module rebuilt
 
+4.1.7-1
+- (unnecessary) glite user removed from MyProxy configuration routine
+
