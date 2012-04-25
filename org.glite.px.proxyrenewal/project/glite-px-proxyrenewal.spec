@@ -10,6 +10,7 @@ BuildRequires: chrpath
 BuildRequires: globus-gssapi-gsi-devel%{?_isa}
 BuildRequires: libtool
 BuildRequires: myproxy-devel%{?_isa}
+BuildRequires: pkgconfig
 BuildRequires: voms-devel%{?_isa}
 Requires: %{name}-devel%{?_isa}
 Requires: %{name}-progs
