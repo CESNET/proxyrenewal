@@ -12,12 +12,12 @@ DM-Upload-Allowed: yes
 Package: glite-px-proxyrenewal
 Section: misc
 Architecture: any
-Depends: ${misc:Depends}, libglite-security-proxyrenewal2 (= ${binary:Version}), libglite-security-proxyrenewal-dev (= ${binary:Version}), glite-px-proxyrenewal-progs (= ${binary:Version})
+Depends: ${misc:Depends}, libglite-security-proxyrenewal1 (= ${binary:Version}), libglite-security-proxyrenewal-dev (= ${binary:Version}), glite-px-proxyrenewal-progs (= ${binary:Version})
 Description: Virtual package with runtime and development files of gLite proxyrenewal
  This is a virtual package providing runtime and development files for gLite
  proxyrenewal.
 
-Package: libglite-security-proxyrenewal2
+Package: libglite-security-proxyrenewal1
 Section: misc
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -28,7 +28,7 @@ Package: libglite-security-proxyrenewal-dev
 Section: libdevel
 Architecture: any
 Priority: extra
-Depends: libglite-security-proxyrenewal2 (= ${binary:Version}), ${misc:Depends}
+Depends: libglite-security-proxyrenewal1 (= ${binary:Version}), ${misc:Depends}
 Description: Development files for gLite proxyrenewal library
  This package contains development libraries and header files for gLite
  proxyrenewal library.
@@ -45,6 +45,6 @@ Package: glite-px-proxyrenewal-dbg
 Section: debug
 Architecture: any
 Priority: extra
-Depends: libglite-security-proxyrenewal2 (= ${binary:Version}), ${misc:Depends}
+Depends: libglite-security-proxyrenewal1 (= ${binary:Version}), ${misc:Depends}
 Description: gLite proxyrenewal debugging symbols
  This package contains debugging symbols for gLite proxyrenewal.
