@@ -9,10 +9,10 @@ Homepage: @URL@
 DM-Upload-Allowed: yes
 @DEBIAN_VCS@
 
-Package: emi-lb
+Package: emi-px
 Section: misc
 Architecture: any
 Depends: ${misc:Depends}, bdii, emi-version, fetch-crl, glite-px-myproxy-yaim, myproxy-server, myproxy-admin, glue-schema
-#TODO: glue-service-provider/glite-info-provider-service
+Recommends: glite-info-provider-service
 Description: @SUMMARY@
 @DEBIAN_DESCRIPTION@
