@@ -7,13 +7,22 @@ yaim_prefix=
 sysconfdir=/opt/glite/etc
 
 -include Makefile.inc
--include ../project/version.properties
+-include ${top_srcdir}/project/version.properties
+
+version=${module.version}
 
 yaim_prefix=/opt/glite
 ifeq (${project},emi)
 yaim_project=/emi
 endif
 
+SOURCES=\
+	config/defaults/glite-px.pre \
+	config/functions/* config/functions/emi/* \
+	config/man/*.1 \
+	config/node-info.d/emi/glite-px* config/node-info.d/glite-px* \
+	config/services/glite-px \
+	Makefile
 FILES=glite-px.pre LICENSE COPYRIGHT node-version arch service update
 
 all ${FILES}:
@@ -26,7 +35,7 @@ all ${FILES}:
 	# metapackage files
 	echo -e "${gLiteCopyrightText}\n\n${gLiteLicenseText}" > LICENSE
 	cp LICENSE COPYRIGHT
-	echo ${module.version}-${module.age} > node-version
+	echo ${version}-${module.age} > node-version
 	echo ${platformArch} > arch
 	echo "NA" > service
 	echo "NA" > update
@@ -44,7 +53,7 @@ install: ${FILES}
 	install -m 0644 $(top_srcdir)/config/functions${yaim_project}/config_info_service_px ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/functions
 	install -m 0644 ${top_srcdir}/config/node-info.d${yaim_project}/glite-px ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/node-info.d; \
 	install -m 0644 glite-px.pre ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/defaults
-	echo "$(package) $(module.version)-$(module.age)" > ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/etc/versions/$(package)
+	echo "$(package) $(version)-$(module.age)" > ${DESTDIR}${PREFIX}${yaim_prefix}/yaim/etc/versions/$(package)
 	mkdir -p ${DESTDIR}${PREFIX}${yaim_prefix}/release/glite-PX
 	cp -fp LICENSE COPYRIGHT node-version arch service update ${DESTDIR}${PREFIX}${yaim_prefix}/release/glite-PX/
 
@@ -55,8 +64,9 @@ check:
 
 clean:
 	rm -rvf ${FILES}
+	rm -rvf dist ${package}-*.tar.gz
 
 distclean:
 	rm -rvf Makefile.inc *.spec debian/
 
-.PHONY: default all check install stage clean
+.PHONY: default all check install stage clean distclean dist distcheck

@@ -41,6 +41,14 @@ version=${module.version}
 
 VPATH:=${top_srcdir}/src:${top_srcdir}/examples
 
+SOURCES=\
+	config/startup \
+	examples/*.c interface/*.h \
+	project/.post* project/.pre* project/doc_proxyrenewal.pl \
+	src/*.1 src/*.8 src/*.c src/*.h \
+	LICENSE Makefile README
+SOURCES_EXEC=config/startup project/doc_proxyrenewal.pl
+
 GLOBUS_NOTHR_INC:= -I${globus_prefix}/include/${nothrflavour}
 GLOBUS_THR_INC:= -I${globus_prefix}/include/${thrflavour}
 GLOBUS_NOTHR_LIBS:=-L${globus_prefix}/lib \
@@ -179,19 +187,6 @@ check:
 
 examples: ${EXAMPLES}
 
-dist: distsrc distbin
-
-distsrc:
-	mkdir -p ${top_srcdir}/${package}-${version}
-	cd ${top_srcdir} && GLOBIGNORE="${package}-${version}" && cp -Rf * ${package}-${version}
-	cd ${top_srcdir} && tar -czf ${distdir}/${package}-${version}_src.tar.gz --exclude-from=project/tar_exclude ${package}-${version}
-	rm -rf ${top_srcdir}/${package}-${version}
-
-distbin:
-	$(MAKE) install PREFIX=`pwd`/tmpbuilddir
-	cd tmpbuilddir && tar -czf ../${top_srcdir}/${distdir}/${package}-${version}_bin.tar.gz *
-	rm -rf tmpbuilddir
-
 install:
 	-mkdir -p ${DESTDIR}${PREFIX}${prefix}/bin ${DESTDIR}${PREFIX}${prefix}/${libdir} ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version} ${DESTDIR}${PREFIX}${sysconfdir}/init.d ${DESTDIR}${PREFIX}${prefix}/share/man/man1 ${DESTDIR}${PREFIX}${prefix}/share/man/man8
 	${INSTALL} -m 755 ${lib_LTLIBRARIES} ${DESTDIR}${PREFIX}${prefix}/${libdir}
@@ -206,8 +201,9 @@ clean:
 	$(RM) ${lib_LTLIBRARIES} $(DAEMON) $(CLIENT) $(EXAMPLES) *.o *.lo core startup
 	$(RM) ${MAN1_GZ} ${MAN8_GZ}
 	$(RM) -rf .libs
+	$(RM) -rvf dist ${package}-*.tar.gz
 
 distclean:
 	rm -rvf Makefile.inc *.spec debian/
 
-.PHONY: default all compile examples check stage dist distsrc distbin install clean distclean
+.PHONY: default all compile examples check stage install clean distclean dist distcheck
