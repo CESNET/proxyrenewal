@@ -6,6 +6,8 @@ PREFIX=/opt/glite
 yaim_prefix=
 sysconfdir=/opt/glite/etc
 
+default: all
+
 -include Makefile.inc
 -include ${top_srcdir}/project/version.properties
 

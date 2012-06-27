@@ -34,6 +34,8 @@ glite_location=${PREFIX}${prefix}
 globus_prefix=/opt/globus
 voms_prefix=${glite_location}
 
+default: all
+
 -include Makefile.inc
 -include ${top_srcdir}/project/version.properties
 
@@ -129,7 +131,6 @@ DAEMON:=glite-proxy-renewd
 CLIENT:=glite-proxy-renew
 EXAMPLES := renew_core
 
-default: all
 compile all: startup ${lib_LTLIBRARIES} ${DAEMON} ${CLIENT} ${MAN_GZ}
 
 startup: ${top_srcdir}/config/startup
