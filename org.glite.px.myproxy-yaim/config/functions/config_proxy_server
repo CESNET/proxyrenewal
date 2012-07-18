@@ -94,10 +94,11 @@ fi
 for VALUE in GRID_AUTHORIZED_RENEWERS       GRID_DEFAULT_RENEWERS \
              GRID_AUTHORIZED_RETRIEVERS     GRID_DEFAULT_RETRIEVERS \
              GRID_AUTHORIZED_KEY_RETRIEVERS GRID_DEFAULT_KEY_RETRIEVERS \
-             GRID_TRUSTED_RETRIEVERS        GRID_DEFAULT_TRUSTED_RETRIEVERS 
+             GRID_TRUSTED_RETRIEVERS        GRID_DEFAULT_TRUSTED_RETRIEVERS \
+             MYPROXY_DISABLE_USAGE_STATS
 
 do
-    KEY=`echo $VALUE | sed 's/^GRID_//' | tr "[:upper:]" "[:lower:]"`
+    KEY=`echo $VALUE | sed -e 's/^GRID_//' -e 's/^MYPROXY_//' | tr "[:upper:]" "[:lower:]"`
     echo "#Adding YAIM value $VALUE if any as $KEY values" >> $MYPROXY_CONF_NEW
     split_quoted_variable ${!VALUE} | while read x; do
         test "x$x" != "x" && echo "$KEY \"$x\"" >> $MYPROXY_CONF_NEW
