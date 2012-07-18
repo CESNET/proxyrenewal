@@ -45,6 +45,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %dir /opt/glite/
+%dir /opt/glite/man/
+%dir /opt/glite/man/man1/
 %dir /opt/glite/release/
 %dir /opt/glite/release/glite-PX/
 %dir /opt/glite/yaim/
@@ -54,6 +56,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir /opt/glite/yaim/examples/siteinfo/services/
 %dir /opt/glite/yaim/functions/
 %dir /opt/glite/yaim/node-info.d/
+/opt/glite/man/man1/*
 /opt/glite/release/glite-PX/COPYRIGHT
 /opt/glite/release/glite-PX/LICENSE
 /opt/glite/release/glite-PX/arch

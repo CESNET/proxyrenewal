@@ -1,4 +1,6 @@
 opt/glite
+opt/glite/man
+opt/glite/man/man1
 opt/glite/release
 opt/glite/release/glite-PX
 opt/glite/yaim

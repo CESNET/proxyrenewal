@@ -50,13 +50,29 @@ MYPROXY_DISABLE_USAGE_STATS : Disable Usage Metrics reporting. The myproxy serve
 .TP
 
 .SH EXAMPLES
-How to configure the Myproxy node.
 .TP
-.B ./yaim -c -s /root/site-info.def -n glite-PX
+How to configure the Myproxy node.
+
+.nf
+cat << EOF > /root/site-info.def
+SITE_NAME=emitb
+PX_HOST=`hostname -f`
+GRID_AUTHORIZED_RETRIEVERS="\\*" 
+GRID_AUTHORIZED_RENEWERS="
+  '/DC=org/DC=terena/DC=tcs/C=CZ/O=Masaryk University/CN=emitb2.ics.muni.cz'
+  '/DC=ch/DC=cern/OU=computers/CN=cvitbrcnagios.cern.ch'
+  '/DC=ch/DC=cern/OU=computers/CN=lxbra2302.cern.ch'
+"
+GRID_TRUSTED_RETRIEVERS="
+  '/DC=ch/DC=cern/OU=computers/CN=cvitbrcnagios.cern.ch'
+"
+EOF
+.B /opt/glite/yaim/bin/yaim -c -s /root/site-info.def -n glite-PX
+.fi
 .TP
 To debug the configuration process:
-.TP
-.B ./yaim -c -s /root/site-info.def -n glite-PX -d 6 
+
+.B /opt/glite/yaim/bin/yaim -c -s /root/site-info.def -n glite-PX -d 6 
 
 .SH DOCUMENTATION
 You can find useful information on these web pages:
