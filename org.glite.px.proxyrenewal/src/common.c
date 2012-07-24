@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+#include <sys/time.h>
 #include "renewal_locl.h"
 
 #ident "$Header$"

@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+#define _GNU_SOURCE
+#include <stdio.h>
+
 #include <myproxy.h>
 #include <myproxy_delegation.h>
 
@@ -293,8 +296,7 @@ glite_renewal_core_destroy_ctx(glite_renewal_core_context context)
 {
    if (context == NULL)
       return 0;
-   if (context->err_message);
-      free(context->err_message);
+   free(context->err_message);
    free(context);
    return 0;
 }

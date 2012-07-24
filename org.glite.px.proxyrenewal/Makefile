@@ -55,6 +55,8 @@ GLOBUS_NOTHR_INC:= -I${globus_prefix}/include/${nothrflavour}
 GLOBUS_THR_INC:= -I${globus_prefix}/include/${thrflavour}
 GLOBUS_NOTHR_LIBS:=-L${globus_prefix}/lib \
 	-lglobus_common_${nothrflavour}
+GLOBUS_THR_LIBS:=-L${globus_prefix}/lib \
+	-lglobus_common_${thrflavour}
 
 myproxy_prefix=${myproxy-devel_prefix}
 myproxy_prefix?=${globus_prefix}
@@ -121,10 +123,16 @@ ifeq (${thrflavour},)
 lib_LTLIBRARIES=${LIB} ${LIB_CORE}
 default_libcore=${LIB_CORE}
 default_lib=${LIB}
+GLOBUS_EXTRA_LIBS=-lglobus_gsi_proxy_core -lglobus_gsi_credential \
+	-lglobus_gsi_cert_utils -lglobus_common
 else
 lib_LTLIBRARIES=${NOTHRLIB} ${THRLIB} ${LIB_CORE_NOTHR}
 default_libcore=${LIB_CORE_NOTHR}
 default_lib=${NOTHRLIB}
+GLOBUS_EXTRA_LIBS=-lglobus_gsi_proxy_core_${nothrflavour} \
+	-lglobus_gsi_credential_${nothrflavour} \
+	-lglobus_gsi_cert_utils_${nothrflavour} \
+	-lglobus_common_${nothrflavour}
 endif
 
 DAEMON:=glite-proxy-renewd
@@ -146,7 +154,7 @@ ${LIB}: ${LIBOBJ}
 	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${prefix}/${libdir}
 
 ${LIB_CORE}: ${LIB_CORE_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${prefix}/${libdir} ${MYPROXY_LIBS} ${VOMS_LIBS}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${prefix}/${libdir} ${MYPROXY_LIBS} ${VOMS_LIBS} ${GLOBUS_GSSAPI_GSI_LIBS} -lglobus_gsi_proxy_core
 else
 ${NOTHRLIB}: ${LIBOBJ}
 	${LINK} ${version_info} -o $@ ${LIBLOBJ} -rpath ${prefix}/${libdir}
@@ -155,14 +163,14 @@ ${THRLIB}: ${THRLIBOBJ}
 	${LINK} ${version_info} -o $@ ${THRLIBLOBJ} -rpath ${prefix}/${libdir}
 
 ${LIB_CORE_NOTHR}: ${LIB_CORE_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${prefix}/${libdir} ${MYPROXY_LIB_NOTHR} ${VOMS_LIBS_NOTHR}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_LOBJS} -rpath ${prefix}/${libdir} ${MYPROXY_LIB_NOTHR} ${VOMS_LIBS_NOTHR} ${GLOBUS_NOTHR_LIBS} -lglobus_gsi_proxy_core_${nothrflavour}
 
 ${LIB_CORE_THR}: ${LIB_CORE_THR_OBJS}
-	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${prefix}/${libdir} ${MYPROXY_LIB_THR} ${VOMS_LIBS_THR}
+	${LINK} ${version_info} -o $@ ${LIB_CORE_THR_LOBJS} -rpath ${prefix}/${libdir} ${MYPROXY_LIB_THR} ${VOMS_LIBS_THR} ${GLOBUS_THR_LIBS} -lglobus_gsi_proxy_core_${thrflavour}
 endif
 
 ${DAEMON}: ${DAEMONOBJ} ${default_libcore}
-	${LINK} -o $@ ${DAEMONOBJ} ${default_libcore}
+	${LINK} -o $@ ${DAEMONOBJ} ${default_libcore} ${GLOBUS_GSSAPI_GSI_LIBS} ${GLOBUS_EXTRA_LIBS}
 
 ${CLIENT}: ${CLIENTOBJ} ${default_lib}
 	${LINK} -o $@ ${CLIENTOBJ} ${default_lib} ${GLOBUS_GSSAPI_GSI_LIBS}

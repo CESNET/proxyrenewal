@@ -159,7 +159,7 @@ get_voms_ac(glite_renewal_core_context ctx, char *server, int port,
 	    char *server_subj, char *cmd, struct vomsdata *vd, AC **ac)
 {
     int ret, voms_error = 0, voms_version;
-    unsigned char *p;
+    const unsigned char *p;
     void *buf = NULL;
     int buf_len;
     char *err_msg;

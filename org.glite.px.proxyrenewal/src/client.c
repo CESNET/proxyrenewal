@@ -37,7 +37,7 @@ static struct option const long_options[] = {
 static char short_options[] = "hvs:p:f:j:";
 
 static void
-usage(exit_code)
+usage(int exit_code)
 {
    fprintf(stdout, "Usage: edg-wl-renew [option] operation\n"
 	   "\t-s myproxy_server [-p port] -f filename -j jobid start |\n"
