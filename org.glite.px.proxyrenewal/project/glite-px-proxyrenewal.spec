@@ -121,23 +121,23 @@ fi
 %defattr(-,root,root)
 %dir /usr/share/doc/%{name}-%{version}/
 /usr/share/doc/%{name}-%{version}/LICENSE
-/usr/%{_lib}/libglite_security_proxyrenewal.so.*
-/usr/%{_lib}/libglite_security_proxyrenewal_core.so.*
+%{_libdir}/libglite_security_proxyrenewal.so.*
+%{_libdir}/libglite_security_proxyrenewal_core.so.*
 
 %files devel
 %defattr(-,root,root)
-%dir /usr/include/glite/
-%dir /usr/include/glite/security/
-%dir /usr/include/glite/security/proxyrenewal/
-/usr/include/glite/security/proxyrenewal/*.h
-/usr/%{_lib}/libglite_security_proxyrenewal.so
-/usr/%{_lib}/libglite_security_proxyrenewal_core.so
+%dir %{_includedir}/glite/
+%dir %{_includedir}/glite/security/
+%dir %{_includedir}/glite/security/proxyrenewal/
+%{_includedir}/glite/security/proxyrenewal/*.h
+%{_libdir}/libglite_security_proxyrenewal.so
+%{_libdir}/libglite_security_proxyrenewal_core.so
 
 %files progs
 %defattr(-,root,root)
 /etc/init.d/glite-proxy-renewald
-/usr/bin/glite-proxy-renew
-/usr/bin/glite-proxy-renewd
+%{_bindir}/glite-proxy-renew
+%{_bindir}/glite-proxy-renewd
 /usr/share/man/man1/glite-proxy-renew.1.gz
 /usr/share/man/man8/glite-proxy-renewd.8.gz
 
