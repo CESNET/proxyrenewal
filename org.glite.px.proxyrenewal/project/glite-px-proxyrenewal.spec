@@ -1,57 +1,55 @@
-Summary: Virtual package with run-time and development files of gLite proxyrenewal
-Name: glite-px-proxyrenewal
-Version: @MAJOR@.@MINOR@.@REVISION@
-Release: @AGE@%{?dist}
-Url: @URL@
-License: ASL 2.0
-Vendor: EMI
-Group: Development/Libraries
-BuildRequires: chrpath
-BuildRequires: globus-gssapi-gsi-devel%{?_isa}
-BuildRequires: libtool
-BuildRequires: myproxy-devel%{?_isa}
-BuildRequires: pkgconfig
-BuildRequires: voms-devel%{?_isa}
-Requires: %{name}-devel%{?_isa}
-Requires: %{name}-progs
-Obsoletes: glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
-BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-Source: http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%{version}/src/%{name}-@VERSION@.src.tar.gz
+Name:           glite-px-proxyrenewal
+Version:        @MAJOR@.@MINOR@.@REVISION@
+Release:        @AGE@%{?dist}
+Summary:        Virtual package with run-time and development files of gLite proxyrenewal
 
+Group:          Development/Libraries
+License:        ASL 2.0
+Url:            @URL@
+Vendor:         EMI
+Source:         http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%{version}/src/%{name}-@VERSION@.src.tar.gz
+BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+
+BuildRequires:  chrpath
+BuildRequires:  globus-gssapi-gsi-devel%{?_isa}
+BuildRequires:  libtool
+BuildRequires:  myproxy-devel%{?_isa}
+BuildRequires:  pkgconfig
+BuildRequires:  voms-devel%{?_isa}
+Requires:       %{name}-devel%{?_isa}
+Requires:       %{name}-progs
+Obsoletes:      glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
 
 %description
 This is a virtual package providing run-time and development files for gLite
 proxyrenewal.
 
 
-%package libs
-Summary: @SUMMARY@
-Group: System Environment/Libraries
-Obsoletes: glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
+%package        libs
+Summary:        @SUMMARY@
+Group:          System Environment/Libraries
+Obsoletes:      glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
 
-
-%description libs
+%description    libs
 @DESCRIPTION@
 
 
-%package devel
-Summary: Development files for gLite proxyrenewal library
-Group: Development/Libraries
-Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-Obsoletes: glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
+%package        devel
+Summary:        Development files for gLite proxyrenewal library
+Group:          Development/Libraries
+Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
+Obsoletes:      glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
 
-
-%description devel
+%description    devel
 This package contains development libraries and header files for gLite
 proxyrenewal library.
 
 
-%package progs
-Summary: gLite proxyrenewal daemon and client
-Group: System Environment/Base
+%package        progs
+Summary:        gLite proxyrenewal daemon and client
+Group:          System Environment/Base
 
-
-%description progs
+%description    progs
 This package contains daemon and client program of gLite proxyrenewal.
 
 
@@ -119,14 +117,12 @@ fi
 %files
 %defattr(-,root,root)
 
-
 %files libs
 %defattr(-,root,root)
 %dir /usr/share/doc/%{name}-%{version}/
 /usr/share/doc/%{name}-%{version}/LICENSE
 /usr/%{_lib}/libglite_security_proxyrenewal.so.*
 /usr/%{_lib}/libglite_security_proxyrenewal_core.so.*
-
 
 %files devel
 %defattr(-,root,root)
@@ -136,7 +132,6 @@ fi
 /usr/include/glite/security/proxyrenewal/*.h
 /usr/%{_lib}/libglite_security_proxyrenewal.so
 /usr/%{_lib}/libglite_security_proxyrenewal_core.so
-
 
 %files progs
 %defattr(-,root,root)

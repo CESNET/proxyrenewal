@@ -1,19 +1,20 @@
-Summary: @SUMMARY@
-Name: glite-px-myproxy-yaim
-Version: @MAJOR@.@MINOR@.@REVISION@
-Release: @AGE@%{?dist}
-Url: @URL@
-License: ASL 2.0
-Vendor: EMI
-Group: Development/Tools
-BuildArch: noarch
-Requires: glite-yaim-bdii
-Requires: glite-yaim-core
-Obsoletes: glite-yaim-myproxy <= 4.0.4-2
-Provides: glite-yaim-myproxy
-BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-Source: http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%{version}/src/%{name}-@VERSION@.src.tar.gz
+Name:           glite-px-myproxy-yaim
+Version:        @MAJOR@.@MINOR@.@REVISION@
+Release:        @AGE@%{?dist}
+Summary:        @SUMMARY@
 
+Group:          Development/Tools
+License:        ASL 2.0
+Url:            @URL@
+Vendor:         EMI
+Source:         http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%{version}/src/%{name}-@VERSION@.src.tar.gz
+BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+
+BuildArch:      noarch
+Requires:       glite-yaim-bdii
+Requires:       glite-yaim-core
+Obsoletes:      glite-yaim-myproxy <= 4.0.4-2
+Provides:       glite-yaim-myproxy
 
 %description
 @DESCRIPTION@
