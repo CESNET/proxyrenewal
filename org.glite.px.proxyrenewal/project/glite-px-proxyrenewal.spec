@@ -16,7 +16,6 @@ Requires: %{name}-devel%{?_isa}
 Requires: %{name}-progs
 Obsoletes: glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-AutoReqProv: yes
 Source: http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%{version}/src/%{name}-@VERSION@.src.tar.gz
 
 

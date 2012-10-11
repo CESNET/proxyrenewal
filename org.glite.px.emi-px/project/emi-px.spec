@@ -17,7 +17,6 @@ Requires: glite-info-provider-service
 Requires: glue-schema
 Obsoletes: glite-PX <= 3.2.2-3
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-AutoReqProv: yes
 Source: http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%{version}/src/%{name}-@VERSION@.src.tar.gz
 
 
