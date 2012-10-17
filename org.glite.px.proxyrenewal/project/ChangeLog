@@ -88,3 +88,9 @@
 1.3.25-5
 - Module rebuilt
 
+1.3.26-1
+- Fedora and EPEL packaging improvements
+- Fixed build on Debian
+- Stricter linking -- missing libraries added
+- Compile-time warnings fixed
+
