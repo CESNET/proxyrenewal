@@ -46,3 +46,9 @@
 4.1.7-1
 - (unnecessary) glite user removed from MyProxy configuration routine
 
+4.1.8-1
+- YAIM docs improved and fixed to install
+- New YAIM variable for disabling sending usage statistics (SB #94645)
+- Certificates for $BDII_USER not needed anymore (SB #94255)
+- Fedora and EPEL packaging improvments
+
