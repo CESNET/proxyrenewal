@@ -25,7 +25,7 @@ SOURCES=\
 	config/node-info.d/emi/glite-px* config/node-info.d/glite-px* \
 	config/services/glite-px \
 	Makefile
-FILES=glite-px.pre LICENSE COPYRIGHT node-version arch service update myproxy-yaim.1.gz
+FILES=glite-px.pre COPYRIGHT node-version arch service update myproxy-yaim.1.gz
 
 all ${FILES}:
 	glite_var="${localstatedir}/glite"; \
@@ -35,8 +35,7 @@ all ${FILES}:
 	sed -e 's:@glite_prefix@:${sysroot}${prefix}:' -e 's:@glite_etc@:${sysconfdir}:' -e "s:@glite_var@:$$glite_var:" $(top_srcdir)/config/defaults/glite-px.pre > glite-px.pre
 
 	# metapackage files
-	echo -e "${gLiteCopyrightText}\n\n${gLiteLicenseText}" > LICENSE
-	cp LICENSE COPYRIGHT
+	echo -e "${gLiteCopyrightText}\n\n${gLiteLicenseText}" > COPYRIGHT
 	echo ${version}-${module.age} > node-version
 	echo ${platformArch} > arch
 	echo "NA" > service

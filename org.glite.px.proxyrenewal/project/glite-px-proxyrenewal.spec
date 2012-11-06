@@ -119,8 +119,7 @@ fi
 
 %files libs
 %defattr(-,root,root)
-%dir /usr/share/doc/%{name}-%{version}/
-/usr/share/doc/%{name}-%{version}/LICENSE
+%doc LICENSE project/ChangeLog
 %{_libdir}/libglite_security_proxyrenewal.so.*
 %{_libdir}/libglite_security_proxyrenewal_core.so.*
 
@@ -135,6 +134,7 @@ fi
 
 %files progs
 %defattr(-,root,root)
+%doc LICENSE project/ChangeLog README
 /etc/init.d/glite-proxy-renewald
 %{_bindir}/glite-proxy-renew
 %{_bindir}/glite-proxy-renewd

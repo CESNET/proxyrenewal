@@ -48,7 +48,7 @@ SOURCES=\
 	examples/*.c interface/*.h \
 	project/.post* project/.pre* project/doc_proxyrenewal.pl \
 	src/*.1 src/*.8 src/*.c src/*.h \
-	LICENSE Makefile README
+	Makefile README
 SOURCES_EXEC=config/startup project/doc_proxyrenewal.pl
 
 GLOBUS_NOTHR_INC:= -I${globus_prefix}/include/${nothrflavour}
@@ -197,10 +197,9 @@ check:
 examples: ${EXAMPLES}
 
 install:
-	-mkdir -p ${DESTDIR}${PREFIX}${prefix}/bin ${DESTDIR}${PREFIX}${prefix}/${libdir} ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version} ${DESTDIR}${PREFIX}${sysconfdir}/init.d ${DESTDIR}${PREFIX}${prefix}/share/man/man1 ${DESTDIR}${PREFIX}${prefix}/share/man/man8
+	-mkdir -p ${DESTDIR}${PREFIX}${prefix}/bin ${DESTDIR}${PREFIX}${prefix}/${libdir} ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal ${DESTDIR}${PREFIX}${sysconfdir}/init.d ${DESTDIR}${PREFIX}${prefix}/share/man/man1 ${DESTDIR}${PREFIX}${prefix}/share/man/man8
 	${INSTALL} -m 755 ${lib_LTLIBRARIES} ${DESTDIR}${PREFIX}${prefix}/${libdir}
 	${INSTALL} -m 755 ${DAEMON} ${CLIENT} ${DESTDIR}${PREFIX}${prefix}/bin
-	${INSTALL} -m 644 ${top_srcdir}/LICENSE ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version}
 	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal
 	${INSTALL} -m 755 startup ${DESTDIR}${PREFIX}${sysconfdir}/init.d/glite-proxy-renewald
 	${INSTALL} -m 644 ${MAN1_GZ} ${DESTDIR}${PREFIX}${prefix}/share/man/man1

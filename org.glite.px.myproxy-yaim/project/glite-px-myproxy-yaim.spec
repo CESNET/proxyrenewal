@@ -45,6 +45,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
+%doc LICENSE project/ChangeLog
 %dir /opt/glite/
 %dir /opt/glite/man/
 %dir /opt/glite/man/man1/
