@@ -52,3 +52,6 @@
 - Certificates for $BDII_USER not needed anymore (SB #94255)
 - Fedora and EPEL packaging improvments
 
+4.1.9-1
+- License and packaging fixes
+
