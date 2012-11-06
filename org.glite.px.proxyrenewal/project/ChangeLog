@@ -94,3 +94,6 @@
 - Stricter linking -- missing libraries added
 - Compile-time warnings fixed
 
+1.3.27-1
+- License and packaging fixes
+
