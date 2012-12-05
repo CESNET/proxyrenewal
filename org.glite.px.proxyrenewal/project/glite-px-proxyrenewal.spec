@@ -71,9 +71,12 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 sed -i 's,\(lockfile=/var/lock\),\1/subsys,' $RPM_BUILD_ROOT/etc/init.d/glite-proxy-renewald
+mkdir $RPM_BUILD_ROOT/etc/rc.d
+mv $RPM_BUILD_ROOT/etc/init.d $RPM_BUILD_ROOT/etc/rc.d
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -rf {} \;
 find $RPM_BUILD_ROOT -name '*.a' -exec rm -rf {} \;
 find $RPM_BUILD_ROOT -name '*' -print | xargs -I {} -i bash -c "chrpath -d {} > /dev/null 2>&1" || echo 'Stripped RPATH'
+mkdir -p $RPM_BUILD_ROOT/var/glite
 
 
 %clean
@@ -89,8 +92,6 @@ rm -rf $RPM_BUILD_ROOT
 %pre progs
 getent group glite >/dev/null || groupadd -r glite
 getent passwd glite >/dev/null || useradd -r -g glite -d /var/glite -c "gLite user" glite
-mkdir -p /var/glite /var/log/glite 2>/dev/null || :
-chown glite:glite /var/glite /var/log/glite
 exit 0
 
 
@@ -134,12 +135,13 @@ fi
 
 %files progs
 %defattr(-,root,root)
+%dir %attr(0755, glite, glite) %{_localstatedir}/glite
 %doc LICENSE project/ChangeLog README
-/etc/init.d/glite-proxy-renewald
+%{_initrddir}/glite-proxy-renewald
 %{_bindir}/glite-proxy-renew
 %{_bindir}/glite-proxy-renewd
-/usr/share/man/man1/glite-proxy-renew.1.gz
-/usr/share/man/man8/glite-proxy-renewd.8.gz
+%{_mandir}/man1/glite-proxy-renew.1.gz
+%{_mandir}/man8/glite-proxy-renewd.8.gz
 
 
 %changelog
