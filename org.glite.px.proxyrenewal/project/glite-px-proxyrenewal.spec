@@ -77,6 +77,7 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -rf {} \;
 find $RPM_BUILD_ROOT -name '*.a' -exec rm -rf {} \;
 find $RPM_BUILD_ROOT -name '*' -print | xargs -I {} -i bash -c "chrpath -d {} > /dev/null 2>&1" || echo 'Stripped RPATH'
 mkdir -p $RPM_BUILD_ROOT/var/glite
+mkdir -p $RPM_BUILD_ROOT/var/spool/glite-renewd
 
 
 %clean
@@ -121,14 +122,17 @@ fi
 %files libs
 %defattr(-,root,root)
 %doc LICENSE project/ChangeLog
-%{_libdir}/libglite_security_proxyrenewal.so.*
-%{_libdir}/libglite_security_proxyrenewal_core.so.*
+%{_libdir}/libglite_security_proxyrenewal.so.1
+%{_libdir}/libglite_security_proxyrenewal.so.1.*
+%{_libdir}/libglite_security_proxyrenewal_core.so.1
+%{_libdir}/libglite_security_proxyrenewal_core.so.1.*
 
 %files devel
 %defattr(-,root,root)
 %dir %{_includedir}/glite/
 %dir %{_includedir}/glite/security/
 %dir %{_includedir}/glite/security/proxyrenewal/
+%attr(0700,glite,glite) %{_localstatedir}/spool/glite-renewd
 %{_includedir}/glite/security/proxyrenewal/*.h
 %{_libdir}/libglite_security_proxyrenewal.so
 %{_libdir}/libglite_security_proxyrenewal_core.so
