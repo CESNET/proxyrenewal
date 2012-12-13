@@ -14,7 +14,7 @@ BuildArch:      noarch
 Requires:       glite-yaim-bdii
 Requires:       glite-yaim-core
 Obsoletes:      glite-yaim-myproxy <= 4.0.4-2
-Provides:       glite-yaim-myproxy
+Provides:       glite-yaim-myproxy = %{version}-%{release}
 
 %description
 @DESCRIPTION@

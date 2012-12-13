@@ -99,20 +99,20 @@ exit 0
 %post progs
 /sbin/chkconfig --add glite-proxy-renewald
 if [ $1 -eq 1 ] ; then
-	/sbin/chkconfig glite-proxy-renewald off
+    /sbin/chkconfig glite-proxy-renewald off
 fi
 
 
 %preun progs
 if [ $1 -eq 0 ] ; then
-	/sbin/service glite-proxy-renewald stop >/dev/null 2>&1
-	/sbin/chkconfig --del glite-proxy-renewald
+    /sbin/service glite-proxy-renewald stop >/dev/null 2>&1
+    /sbin/chkconfig --del glite-proxy-renewald
 fi
 
 
 %postun progs
 if [ "$1" -ge "1" ] ; then
-	/sbin/service glite-proxy-renewald condrestart >/dev/null 2>&1 || :
+    /sbin/service glite-proxy-renewald condrestart >/dev/null 2>&1 || :
 fi
 
 
@@ -132,7 +132,6 @@ fi
 %dir %{_includedir}/glite/
 %dir %{_includedir}/glite/security/
 %dir %{_includedir}/glite/security/proxyrenewal/
-%attr(0700,glite,glite) %{_localstatedir}/spool/glite-renewd
 %{_includedir}/glite/security/proxyrenewal/*.h
 %{_libdir}/libglite_security_proxyrenewal.so
 %{_libdir}/libglite_security_proxyrenewal_core.so
@@ -140,6 +139,7 @@ fi
 %files progs
 %defattr(-,root,root)
 %dir %attr(0755, glite, glite) %{_localstatedir}/glite
+%dir %attr(0700, glite, glite) %{_localstatedir}/spool/glite-renewd
 %doc LICENSE project/ChangeLog README
 %{_initrddir}/glite-proxy-renewald
 %{_bindir}/glite-proxy-renew
