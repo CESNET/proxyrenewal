@@ -44,12 +44,22 @@ version=${module.version}
 VPATH:=${top_srcdir}/src:${top_srcdir}/examples
 
 SOURCES=\
-	config/startup \
+	config/glite-px config/setup config/startup config/systemd.* \
 	examples/*.c interface/*.h \
 	project/.post* project/.pre* project/doc_proxyrenewal.pl \
 	src/*.1 src/*.8 src/*.c src/*.h \
 	Makefile README
-SOURCES_EXEC=config/startup project/doc_proxyrenewal.pl
+SOURCES_EXEC=config/setup config/startup project/doc_proxyrenewal.pl
+
+ifeq ($(os_type),debian)
+sysdefaultdir=${sysconfdir}/default
+else
+sysdefaultdir=${sysconfdir}/sysconfig
+endif
+
+ifeq ($(os_type),fedora)
+unitdir=`pkg-config systemd --variable=systemdsystemunitdir`
+endif
 
 GLOBUS_NOTHR_INC:= -I${globus_prefix}/include/${nothrflavour}
 GLOBUS_THR_INC:= -I${globus_prefix}/include/${thrflavour}
@@ -103,6 +113,7 @@ MAN1_GZ:=glite-proxy-renew.1.gz
 MAN8_GZ:=glite-proxy-renewd.8.gz
 MAN_GZ = ${MAN1_GZ} ${MAN8_GZ}
 MAN = $(MAN_GZ:.gz=)
+SCRIPTS=glite-px setup startup
 
 THRLIBOBJ:=${LIBOBJ:.o=.thr.o}
 LIBLOBJ:=${LIBOBJ:.o=.lo}
@@ -139,14 +150,20 @@ DAEMON:=glite-proxy-renewd
 CLIENT:=glite-proxy-renew
 EXAMPLES := renew_core
 
-compile all: startup ${lib_LTLIBRARIES} ${DAEMON} ${CLIENT} ${MAN_GZ}
+compile all: ${SCRIPTS} ${lib_LTLIBRARIES} ${DAEMON} ${CLIENT} ${MAN_GZ}
 
-startup: ${top_srcdir}/config/startup
+${SCRIPTS}: ${top_srcdir}/config/glite-px ${top_srcdir}/config/startup ${top_srcdir}/config/setup
 	glite_var="${localstatedir}/glite"; \
 	if echo "${localstatedir}" | grep 'glite'>/dev/null; then \
 		glite_var="${localstatedir}"; \
 	fi; \
-	sed -e 's:@glite_prefix@:${sysroot}${prefix}:' -e 's:@glite_etc@:${sysroot}${sysconfdir}:' -e "s:@glite_var@:$$glite_var:" $< > $@
+	sed -e 's:@glite_prefix@:${sysroot}${prefix}:' -e 's:@glite_etc@:${sysroot}${sysconfdir}:' -e "s:@glite_var@:$$glite_var:" -e 's:@defaultdir@:${sysdefaultdir}:g' ${top_srcdir}/config/$@ > $@
+ifneq ($(os_type),debian)
+	sed -i 's/# \(Default-Start\|Default-Stop\):.*/# \1:/' $@
+endif
+	sed "s/^@$(os_type)@//" $@ > $@.tmp
+	grep -v '^@' $@.tmp > $@
+	rm $@.tmp
 	chmod +x $@
 
 ifeq (${thrflavour},)
@@ -197,16 +214,25 @@ check:
 examples: ${EXAMPLES}
 
 install:
-	-mkdir -p ${DESTDIR}${PREFIX}${prefix}/bin ${DESTDIR}${PREFIX}${prefix}/${libdir} ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal ${DESTDIR}${PREFIX}${sysconfdir}/init.d ${DESTDIR}${PREFIX}${prefix}/share/man/man1 ${DESTDIR}${PREFIX}${prefix}/share/man/man8
+	-mkdir -p ${DESTDIR}${PREFIX}${prefix}/bin ${DESTDIR}${PREFIX}${prefix}/sbin ${DESTDIR}${PREFIX}${prefix}/${libdir} ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal ${DESTDIR}${PREFIX}${prefix}/share/man/man1 ${DESTDIR}${PREFIX}${prefix}/share/man/man8 ${DESTDIR}${PREFIX}${sysdefaultdir} ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version}
 	${INSTALL} -m 755 ${lib_LTLIBRARIES} ${DESTDIR}${PREFIX}${prefix}/${libdir}
 	${INSTALL} -m 755 ${DAEMON} ${CLIENT} ${DESTDIR}${PREFIX}${prefix}/bin
+	${INSTALL} -m 755 setup ${DESTDIR}${PREFIX}${prefix}/sbin/glite-proxy-setup
 	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal
-	${INSTALL} -m 755 startup ${DESTDIR}${PREFIX}${sysconfdir}/init.d/glite-proxy-renewald
 	${INSTALL} -m 644 ${MAN1_GZ} ${DESTDIR}${PREFIX}${prefix}/share/man/man1
 	${INSTALL} -m 644 ${MAN8_GZ} ${DESTDIR}${PREFIX}${prefix}/share/man/man8
+	${INSTALL} -m 644 glite-px ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version}/glite-px
+	${INSTALL} -m 644 glite-px ${DESTDIR}${PREFIX}${sysdefaultdir}
+ifeq ($(os_type),fedora)
+	mkdir -p ${DESTDIR}${PREFIX}${unitdir}
+	${INSTALL} -m 644 ${top_srcdir}/config/systemd.proxy-renewd ${DESTDIR}${PREFIX}${unitdir}/glite-proxy-renewd.service
+else
+	mkdir -p ${DESTDIR}${PREFIX}${sysconfdir}/init.d
+	${INSTALL} -m 755 startup ${DESTDIR}${PREFIX}${sysconfdir}/init.d/glite-proxy-renewald
+endif
 
 clean:
-	$(RM) ${lib_LTLIBRARIES} $(DAEMON) $(CLIENT) $(EXAMPLES) *.o *.lo core startup
+	$(RM) ${lib_LTLIBRARIES} $(DAEMON) $(CLIENT) $(EXAMPLES) *.o *.lo core ${SCRIPTS}
 	$(RM) ${MAN1_GZ} ${MAN8_GZ}
 	$(RM) -rf .libs
 	$(RM) -rvf dist ${package}-*.tar.gz

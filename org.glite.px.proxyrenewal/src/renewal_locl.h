@@ -80,7 +80,7 @@ typedef enum {
 
 #define EDG_WLPR_MYPROXY_PORT 7512
 
-#define EDG_WLPR_REPOSITORY_ROOT "/var/spool/edg-wl-renewd"
+#define EDG_WLPR_REPOSITORY_ROOT "/var/spool/glite-renewd"
 
 #define EDG_WLPR_BUF_SIZE 4096
 

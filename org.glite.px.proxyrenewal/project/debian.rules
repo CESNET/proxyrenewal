@@ -7,6 +7,7 @@ p_base=glite-px-proxyrenewal
 p_dbg=glite-px-proxyrenewal-dbg
 p_dev=libglite-security-proxyrenewal-dev
 p_lib=libglite-security-proxyrenewal1
+p_progs=glite-px-proxyrenewal-progs
 
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
@@ -46,9 +47,11 @@ install: build-stamp
 	mkdir -p debian/$(p_base)/usr/share/doc
 	mkdir -p debian/$(p_dbg)/usr/share/doc
 	mkdir -p debian/$(p_dev)/usr/share/doc
+	mkdir -p debian/$(p_progs)/usr/share/doc
 	ln -s $(p_lib) debian/$(p_base)/usr/share/doc/$(p_base)
 	ln -s $(p_lib) debian/$(p_dbg)/usr/share/doc/$(p_dbg)
 	ln -s $(p_lib) debian/$(p_dev)/usr/share/doc/$(p_dev)
+	mv debian/tmp/usr/share/doc/glite-px-proxyrenewal-@MAJOR@.@MINOR@.@REVISION@ debian/$(p_progs)/usr/share/doc/$(p_progs)
 
 binary-indep:
 

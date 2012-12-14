@@ -18,6 +18,16 @@ BuildRequires:  pkgconfig
 BuildRequires:  voms-devel%{?_isa}
 Requires:       %{name}-devel%{?_isa}
 Requires:       %{name}-progs
+%if 0%{?fedora}
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+BuildRequires: systemd
+%else
+Requires(post): chkconfig
+Requires(preun): chkconfig
+Requires(preun): initscripts
+%endif
 Obsoletes:      glite-security-proxyrenewal%{?_isa} <= 1.3.11-4
 
 %description
@@ -68,11 +78,14 @@ make check
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
+# documentation installed by %doc
+rm -rf $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
+%if ! 0%{?fedora}
 sed -i 's,\(lockfile=/var/lock\),\1/subsys,' $RPM_BUILD_ROOT/etc/init.d/glite-proxy-renewald
 mkdir $RPM_BUILD_ROOT/etc/rc.d
 mv $RPM_BUILD_ROOT/etc/init.d $RPM_BUILD_ROOT/etc/rc.d
+%endif
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -rf {} \;
 find $RPM_BUILD_ROOT -name '*.a' -exec rm -rf {} \;
 find $RPM_BUILD_ROOT -name '*' -print | xargs -I {} -i bash -c "chrpath -d {} > /dev/null 2>&1" || echo 'Stripped RPATH'
@@ -97,23 +110,46 @@ exit 0
 
 
 %post progs
+%if 0%{?fedora}
+if [ $1 -eq 1 ] ; then
+    # Initial installation
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+%else
 /sbin/chkconfig --add glite-proxy-renewald
 if [ $1 -eq 1 ] ; then
     /sbin/chkconfig glite-proxy-renewald off
 fi
+%endif
 
 
 %preun progs
+%if 0%{?fedora}
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable glite-proxy-renewd.service > /dev/null 2>&1 || :
+    /bin/systemctl stop glite-proxy-renewd.service > /dev/null 2>&1 || :
+fi
+%else
 if [ $1 -eq 0 ] ; then
     /sbin/service glite-proxy-renewald stop >/dev/null 2>&1
     /sbin/chkconfig --del glite-proxy-renewald
 fi
+%endif
 
 
 %postun progs
+%if 0%{?fedora}
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart glite-proxy-renewd.service >/dev/null 2>&1 || :
+fi
+%else
 if [ "$1" -ge "1" ] ; then
     /sbin/service glite-proxy-renewald condrestart >/dev/null 2>&1 || :
 fi
+%endif
 
 
 %files
@@ -140,10 +176,16 @@ fi
 %defattr(-,root,root)
 %dir %attr(0755, glite, glite) %{_localstatedir}/glite
 %dir %attr(0700, glite, glite) %{_localstatedir}/spool/glite-renewd
-%doc LICENSE project/ChangeLog README
+%doc LICENSE project/ChangeLog README config/glite-px
+%config(noreplace missingok) %{_sysconfdir}/sysconfig/glite-px
+%if 0%{?fedora}
+%{_unitdir}/glite-proxy-renewd.service
+%else
 %{_initrddir}/glite-proxy-renewald
+%endif
 %{_bindir}/glite-proxy-renew
 %{_bindir}/glite-proxy-renewd
+%{_sbindir}/glite-proxy-setup
 %{_mandir}/man1/glite-proxy-renew.1.gz
 %{_mandir}/man8/glite-proxy-renewd.8.gz
 
