@@ -97,3 +97,8 @@
 1.3.27-1
 - License and packaging fixes
 
+1.3.28-1
+- Proxyrenewal for Fedora - setup script and startup unit file
+- Library sonames tracked in rpm (package review for Fedora)
+- Runtime file location defaults changed and unified (SB #98940)
+
