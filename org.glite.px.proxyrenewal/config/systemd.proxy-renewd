@@ -7,8 +7,8 @@ After=network.target
 Type=forking
 User=glite
 Group=glite
-Environment=X509_USER_CERT=/var/glite/.certs/hostcert.pem
-Environment=X509_USER_KEY=/var/glite/.certs/hostkey.pem
+Environment=X509_USER_CERT=/var/lib/glite/.certs/hostcert.pem
+Environment=X509_USER_KEY=/var/lib/glite/.certs/hostkey.pem
 # workaround for VOMS_FindByVO that seems to always require user's own VOMS config file (savannach bug #7511)
 Environment=VOMS_USERCONF=/tmp/renewal_vomses
 EnvironmentFile=-/etc/profile.d/grid-env.sh
