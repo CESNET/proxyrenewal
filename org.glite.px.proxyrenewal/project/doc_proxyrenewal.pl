@@ -46,13 +46,15 @@ usage: $0 [-h] [-v]
 #	system("rm -f $WRKDIR/*");
 
 	%docs = (
-		AG => [ qw/README gliteproxyrenewd gliteproxyrenew / ],
-		DESC => [ qw/README/ ]
+		AG => [ qw/README gliteproxyrenewd gliteproxyrenew myproxyyaim/ ],
+		DESC => [ qw/README/ ],
+		PX => [ qw/myproxyyaim/ ]
 	);
 
 	%titles = (
 		AG => 'ProxyRenewal -- Administrator Guide', 
-		DESC => 'ProxyRenewal -- Functional Description'
+		DESC => 'ProxyRenewal -- Functional Description',
+		PX => 'MyProxy YAIM -- Administrator Guide'
 	);
 
 	# ******************************
@@ -64,6 +66,7 @@ usage: $0 [-h] [-v]
 		README => 'README',
 		gliteproxyrenew => 'glite-proxy-renew',
 		gliteproxyrenewd => 'glite-proxy-renewd',
+		myproxyyaim => 'myproxy-yaim',
 		funding => 'funding.tex',
 		copyright => 'copyright.tex'
 	);
@@ -73,6 +76,7 @@ usage: $0 [-h] [-v]
 		README => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/README?view=co',
 		gliteproxyrenew => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/src/glite-proxy-renew.1?view=co',
 		gliteproxyrenewd => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/src/glite-proxy-renewd.8?view=co',
+		myproxyyaim => ' http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.myproxy-yaim/config/man/myproxy-yaim.1?view=co',
 		funding => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.lb.doc/src/funding.tex?view=co',
 		copyright => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.lb.doc/src/copyright.tex?view=co'
 	);
@@ -81,13 +85,14 @@ usage: $0 [-h] [-v]
 	%chapters = (
 		README => 'Introduction',
 		gliteproxyrenew => 'glite-proxy-renew Command Reference',
-		gliteproxyrenewd => 'glite-proxy-renewd Command Reference'
+		gliteproxyrenewd => 'glite-proxy-renewd Command Reference',
+		myproxyyaim => 'MyProxy configuration by YAIM'
 	);
 
 	#What type of conversion to use
 	%conversions = (
 		FromText => [ qw/README / ],
-		FromMan => [ qw/gliteproxyrenewd gliteproxyrenew/ ]
+		FromMan => [ qw/gliteproxyrenewd gliteproxyrenew myproxyyaim/ ]
 	);
 
 	for $file (keys %files) {
@@ -201,7 +206,7 @@ sub man_to_tex {
 
 	# Strip LaTeX matter
 	system("mv $fromfile.tex $fromfile.latex");
-	system("awk '!p;/end{document}/{p=1}' $fromfile.latex | awk '/begin{document}/{p=1}p' | egrep -v 'end{document}' | egrep -v 'begin{document}' >> $fromfile.tex");
+	system("awk '!p;/end{document}/{p=1}' $fromfile.latex | awk '/begin{document}/{p=1}p' | egrep -v 'end{document}' | egrep -v 'begin{document}' | sed 's/\\\\\\\\\$//' >> $fromfile.tex");
 	system("rm $fromfile.latex");
 
 	my $fullstring;
