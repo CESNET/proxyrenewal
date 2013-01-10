@@ -63,14 +63,18 @@ usage: $0 [-h] [-v]
 	%files = (
 		README => 'README',
 		gliteproxyrenew => 'glite-proxy-renew',
-		gliteproxyrenewd => 'glite-proxy-renewd'
+		gliteproxyrenewd => 'glite-proxy-renewd',
+		funding => 'funding.tex',
+		copyright => 'copyright.tex'
 	);
 
 	#Download URLs
 	%urls = (
 		README => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/README?view=co',
 		gliteproxyrenew => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/src/glite-proxy-renew.1?view=co',
-		gliteproxyrenewd => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/src/glite-proxy-renewd.8?view=co'
+		gliteproxyrenewd => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/src/glite-proxy-renewd.8?view=co',
+		funding => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.lb.doc/src/funding.tex?view=co',
+		copyright => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.lb.doc/src/copyright.tex?view=co'
 	);
 
 	#Chpater names in resulting documents
@@ -124,7 +128,7 @@ usage: $0 [-h] [-v]
 
 		system("sed -i 's/XXTITLEXX/$titles{$doc}/' $texfilename");
 		system("sed -i 's/XXAUTHORXX/CESNET/' $texfilename");
-		system("sed -i 's/XXVERSIONXX/1.0.0-1/' $texfilename");
+		system("sed -i 's/XXVERSIONXX/1.0.1-1/' $texfilename");
 		system("sed -i 's/XXEMIVERSIONXX/1.x/' $texfilename");
 
 		foreach $chapter (@{ $docs{$doc} }) {
@@ -265,7 +269,8 @@ sub gen_LaTeX_files {
 a2FnZVtwZGZ0ZXhde2dyYXBoaWN4fQpcdXNlcGFja2FnZVtde2NvbW1lbnR9CgpcdGl0bGV7WFhU
 SVRMRVhYfQpcYXV0aG9ye1hYQVVUSE9SWFh9ClxEYXRle1x0b2RheX0KXERvY1ZlcnNpb257WFhW
 RVJTSU9OWFh9ClxFTUlDb21wVmVyc2lvbntYWEVNSVZFUlNJT05YWH0KClxiZWdpbntkb2N1bWVu
-dH0KClx0YWJsZW9mY29udGVudHMKClxuZXdwYWdlCgo=};
+dH0KClxpbnB1dHtmdW5kaW5nfQpcaW5wdXR7Y29weXJpZ2h0fQpcbmV3cGFnZQoKXHRhYmxlb2Zj
+b250ZW50cwoKXG5ld3BhZ2UKCg==};
 
 	close T;
 	system("base64 -d -i $_[0].b64 > $_[0]");
