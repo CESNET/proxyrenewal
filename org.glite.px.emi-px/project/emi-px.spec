@@ -1,3 +1,6 @@
+# virtual package
+%global debug_package %{nil}
+
 Name:           emi-px
 Version:        @MAJOR@.@MINOR@.@REVISION@
 Release:        @AGE@%{?dist}
