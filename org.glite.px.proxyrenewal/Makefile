@@ -238,6 +238,6 @@ clean:
 	$(RM) -rvf dist ${package}-*.tar.gz
 
 distclean:
-	rm -rvf Makefile.inc *.spec debian/
+	rm -rvf project/changelog Makefile.inc *.spec debian/
 
 .PHONY: default all compile examples check stage install clean distclean dist distcheck
