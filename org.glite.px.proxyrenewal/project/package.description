@@ -1,1 +1,0 @@
-The daemon is responsible for secure and controlled way of periodical renewal of user proxy certificates. Its primary goal is to support long-time jobs running on the grid. Package also contains C/C++ library and headers.
