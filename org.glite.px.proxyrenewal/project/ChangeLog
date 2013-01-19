@@ -104,3 +104,10 @@
 
 1.3.29-1
 - Change home directory of glite user to be compliant with FHS (finalize SB #98940)
+
+1.3.30-1
+- Legacy build files cleaned
+- Documentation scripts generate also an PR AG chapter (and a separate PX AG) for myproxy-yaim
+- Documentation updated with EMI formalities
+- Changes based on Fedora reviews
+
