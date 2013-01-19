@@ -58,3 +58,8 @@
 4.1.10-1
 - Packaging fixes
 
+4.1.11-1
+- Legacy build files cleaned
+- man page compatible with rman | gnuhtml2latex
+- Changes based on Fedora reviews
+
