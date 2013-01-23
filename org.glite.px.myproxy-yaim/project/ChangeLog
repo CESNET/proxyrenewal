@@ -63,3 +63,6 @@
 - man page compatible with rman | gnuhtml2latex
 - Changes based on Fedora reviews
 
+4.1.12-1
+- Fixes to follow recent Debian updates
+
