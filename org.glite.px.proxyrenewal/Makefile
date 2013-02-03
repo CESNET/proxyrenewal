@@ -90,11 +90,11 @@ MYPROXY_LIBS?=${MYPROXY_LIB_NOTHR}
 
 DEBUG:=-g -O0
 
-CFLAGS:= ${CFLAGS} ${DEBUG} \
+CFLAGS:= ${DEBUG} \
 	${VOMS_CFLAGS} \
 	-I${top_srcdir}/src -I${top_srcdir}/interface \
 	-I${glite_location}/include \
-	 -DLOCAL_PX_COMPILE=1
+	 -DLOCAL_PX_COMPILE=1 ${CFLAGS}
 
 offset=0
 version_info:=-version-info ${shell \
