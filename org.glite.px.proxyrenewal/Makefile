@@ -45,11 +45,12 @@ VPATH:=${top_srcdir}/src:${top_srcdir}/examples
 
 SOURCES=\
 	config/glite-px config/setup config/startup config/systemd.* \
+	doc/*.sh \
 	examples/*.c interface/*.h \
 	project/.post* project/.pre* project/doc_proxyrenewal.pl \
 	src/*.1 src/*.8 src/*.c src/*.h \
 	Makefile README
-SOURCES_EXEC=config/setup config/startup project/doc_proxyrenewal.pl
+SOURCES_EXEC=config/setup config/startup doc/*.sh project/doc_proxyrenewal.pl
 
 ifeq ($(os_type),debian)
 sysdefaultdir=${sysconfdir}/default
