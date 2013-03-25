@@ -46,9 +46,9 @@ usage: $0 [-h] [-v]
 #	system("rm -f $WRKDIR/*");
 
 	%docs = (
-		AG => [ qw/README gliteproxyrenewd gliteproxyrenew myproxyyaim/ ],
+		AG => [ qw/README gliteproxyrenewd gliteproxyrenew myproxyyaim deploysl deploydebian/ ],
 		DESC => [ qw/README/ ],
-		PX => [ qw/myproxyyaim/ ]
+		PX => [ qw/myproxyyaim deploysl deploydebian/ ]
 	);
 
 	%titles = (
@@ -67,6 +67,8 @@ usage: $0 [-h] [-v]
 		gliteproxyrenew => 'glite-proxy-renew',
 		gliteproxyrenewd => 'glite-proxy-renewd',
 		myproxyyaim => 'myproxy-yaim',
+		deploysl => 'myproxy-deployment-sl',
+		deploydebian => 'myproxy-deployment-debian',
 		funding => 'funding.tex',
 		copyright => 'copyright.tex'
 	);
@@ -77,6 +79,8 @@ usage: $0 [-h] [-v]
 		gliteproxyrenew => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/src/glite-proxy-renew.1?view=co',
 		gliteproxyrenewd => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/src/glite-proxy-renewd.8?view=co',
 		myproxyyaim => ' http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.myproxy-yaim/config/man/myproxy-yaim.1?view=co',
+		deploysl => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/doc/myproxy-deployment-sl.sh?view=co',
+		deploydebian => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.px.proxyrenewal/doc/myproxy-deployment-debian.sh?view=co',
 		funding => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.lb.doc/src/funding.tex?view=co',
 		copyright => 'http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/org.glite.lb.doc/src/copyright.tex?view=co'
 	);
@@ -86,13 +90,16 @@ usage: $0 [-h] [-v]
 		README => 'Introduction',
 		gliteproxyrenew => 'glite-proxy-renew Command Reference',
 		gliteproxyrenewd => 'glite-proxy-renewd Command Reference',
-		myproxyyaim => 'MyProxy configuration by YAIM'
+		myproxyyaim => 'MyProxy configuration by YAIM',
+		deploysl => 'YAIM-less MyProxy Deployment procedure -- SL',
+		deploydebian => 'YAIM-less MyProxy Deployment procedure -- Debian'
 	);
 
 	#What type of conversion to use
 	%conversions = (
 		FromText => [ qw/README / ],
-		FromMan => [ qw/gliteproxyrenewd gliteproxyrenew myproxyyaim/ ]
+		FromMan => [ qw/gliteproxyrenewd gliteproxyrenew myproxyyaim/ ],
+		FromSrc => [ qw/deploysl deploydebian/ ]
 	);
 
 	for $file (keys %files) {
@@ -116,6 +123,9 @@ usage: $0 [-h] [-v]
 
 	foreach $file (@{ $conversions{'FromMan'} }) {
 		man_to_tex("@files{$file}", "@files{$file}.tex", @chapters{$file}); }
+
+	foreach $file (@{ $conversions{'FromSrc'} }) {
+		src_to_tex("@files{$file}", "@files{$file}.tex", @chapters{$file}); }
 
 	# ******************************
 	# Generate overall LaTeX files
@@ -194,6 +204,27 @@ sub readme_to_tex {
 	printf(TEXFILE "\\section{$chaptername}\n");
 	printf(TEXFILE "$fullstring");
 	close TEXFILE;
+
+}
+
+sub src_to_tex {
+        $fromfile = $_[0];
+        $tofile = $_[1];
+        $chaptername = $_[2];
+
+        my $fullstring;
+
+        open TEXFILE, "$fromfile";
+        while (<TEXFILE>) { $fullstring .= $_ }
+        close TEXFILE;
+
+        open TEXFILE, "+>", "$tofile";
+        printf(TEXFILE "\\newpage\n");
+        printf(TEXFILE "\\section{$chaptername}\n");
+        printf(TEXFILE "\\begin{verbatim}\n");
+        printf(TEXFILE "$fullstring");
+        printf(TEXFILE "\\end{verbatim}\n");
+        close TEXFILE;
 
 }
 
