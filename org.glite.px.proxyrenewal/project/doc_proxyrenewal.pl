@@ -143,7 +143,7 @@ usage: $0 [-h] [-v]
 
 		system("sed -i 's/XXTITLEXX/$titles{$doc}/' $texfilename");
 		system("sed -i 's/XXAUTHORXX/CESNET/' $texfilename");
-		system("sed -i 's/XXVERSIONXX/1.0.1-1/' $texfilename");
+		system("sed -i 's/XXVERSIONXX/1.0.2-1/' $texfilename");
 		system("sed -i 's/XXEMIVERSIONXX/1.x/' $texfilename");
 
 		foreach $chapter (@{ $docs{$doc} }) {
