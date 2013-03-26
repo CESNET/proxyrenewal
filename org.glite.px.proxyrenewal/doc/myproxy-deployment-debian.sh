@@ -1,4 +1,6 @@
 #! /bin/sh
+# The primary purpose of this script is to document the procedure that may
+# be followed in case MyProxy server cannot be configured by YAIM
 
 DN=`openssl x509 -in /etc/grid-security/hostcert.pem -noout -subject |sed 's/subject= //'`
 echo "$DN"
