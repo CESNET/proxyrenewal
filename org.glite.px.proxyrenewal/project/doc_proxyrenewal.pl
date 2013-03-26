@@ -91,7 +91,7 @@ usage: $0 [-h] [-v]
 		gliteproxyrenew => 'glite-proxy-renew Command Reference',
 		gliteproxyrenewd => 'glite-proxy-renewd Command Reference',
 		myproxyyaim => 'MyProxy configuration by YAIM',
-		deploysl => 'YAIM-less MyProxy Deployment procedure -- SL',
+		deploysl => 'YAIM-less MyProxy Deployment procedure -- Scientific Linux',
 		deploydebian => 'YAIM-less MyProxy Deployment procedure -- Debian'
 	);
 
@@ -221,9 +221,11 @@ sub src_to_tex {
         open TEXFILE, "+>", "$tofile";
         printf(TEXFILE "\\newpage\n");
         printf(TEXFILE "\\section{$chaptername}\n");
-        printf(TEXFILE "\\begin{verbatim}\n");
+        printf(TEXFILE "\\begin{lstlisting}[breaklines]\n");
+#        printf(TEXFILE "\\begin{verbatim}\n");
         printf(TEXFILE "$fullstring");
-        printf(TEXFILE "\\end{verbatim}\n");
+        printf(TEXFILE "\\end{lstlisting}\n");
+#        printf(TEXFILE "\\end{verbatim}\n");
         close TEXFILE;
 
 }
@@ -303,14 +305,14 @@ sub gen_LaTeX_files {
 
 	print T q{XGRvY3VtZW50Y2xhc3NbXXtlbWl9Clx1c2VwYWNrYWdlW3V0Zjhde2lucHV0ZW5jfQpcdXNlcGFj
 a2FnZVtwZGZ0ZXhde2dyYXBoaWN4fQpcdXNlcGFja2FnZVtde2NvbW1lbnR9Clx1c2VwYWNrYWdl
-e21kd2xpc3R9CgoKXHRpdGxle1hYVElUTEVYWH0KXGF1dGhvcntYWEFVVEhPUlhYfQpcRGF0ZXtc
-dG9kYXl9ClxEb2NWZXJzaW9ue1hYVkVSU0lPTlhYfQpcRU1JQ29tcFZlcnNpb257WFhFTUlWRVJT
-SU9OWFh9CgpccmVuZXdlbnZpcm9ubWVudHtkZXNjcmlwdGlvbn0lCnsKXGJlZ2lue2Jhc2VkZXNj
-cmlwdH17ClxkZXNjbGFiZWxzdHlsZXtcbmV4dGxpbmVsYWJlbH0KXHJlbmV3Y29tbWFuZHtcbWFr
-ZWxhYmVsfVsxXXslClxwYXJib3hbYl17XHRleHR3aWR0aH17XGJmc2VyaWVzIyMxfSUKfSUKXGRl
-c2NsYWJlbHdpZHRoezJlbX19fQp7ClxlbmR7YmFzZWRlc2NyaXB0fQp9CgoKXGJlZ2lue2RvY3Vt
-ZW50fQoKXGlucHV0e2Z1bmRpbmd9ClxpbnB1dHtjb3B5cmlnaHR9ClxuZXdwYWdlCgpcdGFibGVv
-ZmNvbnRlbnRzCgpcbmV3cGFnZQoK};
+e21kd2xpc3R9Clx1c2VwYWNrYWdle2xpc3RpbmdzfQoKClx0aXRsZXtYWFRJVExFWFh9ClxhdXRo
+b3J7WFhBVVRIT1JYWH0KXERhdGV7XHRvZGF5fQpcRG9jVmVyc2lvbntYWFZFUlNJT05YWH0KXEVN
+SUNvbXBWZXJzaW9ue1hYRU1JVkVSU0lPTlhYfQoKXHJlbmV3ZW52aXJvbm1lbnR7ZGVzY3JpcHRp
+b259JQp7ClxiZWdpbntiYXNlZGVzY3JpcHR9ewpcZGVzY2xhYmVsc3R5bGV7XG5leHRsaW5lbGFi
+ZWx9ClxyZW5ld2NvbW1hbmR7XG1ha2VsYWJlbH1bMV17JQpccGFyYm94W2Jde1x0ZXh0d2lkdGh9
+e1xiZnNlcmllcyMjMX0lCn0lClxkZXNjbGFiZWx3aWR0aHsyZW19fX0KewpcZW5ke2Jhc2VkZXNj
+cmlwdH0KfQoKClxiZWdpbntkb2N1bWVudH0KClxpbnB1dHtmdW5kaW5nfQpcaW5wdXR7Y29weXJp
+Z2h0fQpcbmV3cGFnZQoKXHRhYmxlb2Zjb250ZW50cwoKXG5ld3BhZ2UKCg==};
 
 	close T;
 	system("base64 -d -i $_[0].b64 > $_[0]");
