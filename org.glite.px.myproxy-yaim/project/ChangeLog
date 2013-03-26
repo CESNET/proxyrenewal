@@ -66,3 +66,6 @@
 4.1.12-1
 - Fixes to follow recent Debian updates
 
+4.1.13-1
+- YSIM option for enabling self-authorization (SB #100754)
+
