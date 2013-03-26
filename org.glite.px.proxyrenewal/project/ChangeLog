@@ -114,3 +114,8 @@
 1.3.31-1
 - Fixes to follow recent Debian updates
 
+1.3.32-1
+- Documentation steps for MyProxy deployment
+- YAIM-less deployment improvements (fetching CRL on Fedora, defaults for PX to perform setup out-of-the-box)
+- Debugging packages of subpackages in Debian
+
