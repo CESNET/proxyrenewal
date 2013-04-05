@@ -37,7 +37,7 @@ Package: glite-px-proxyrenewal-progs
 Section: misc
 Architecture: any
 Priority: extra
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
 Description: gLite proxyrenewal daemon and client 
  This package contains daemon and client program of gLite proxyrenewal.
 

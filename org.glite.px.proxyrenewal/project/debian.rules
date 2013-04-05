@@ -64,7 +64,7 @@ binary-arch: install
 	dh_installexamples
 	dh_installman
 	dh_installlogrotate
-	dh_installinit --onlyscripts --no-start --name=glite-proxy-renewald
+	dh_installinit -p$(p_progs) --onlyscripts --no-start --name=glite-proxy-renewald
 	dh_installcron
 	dh_install --fail-missing
 	dh_link
