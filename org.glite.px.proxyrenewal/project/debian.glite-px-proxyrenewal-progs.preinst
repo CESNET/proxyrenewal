@@ -2,8 +2,8 @@
 set -e
 
 getent group glite >/dev/null || addgroup --system glite
-getent passwd glite >/dev/null || adduser --system --group --home /var/lib/glite --disabled-password --disabled-login glite
-mkdir -p /var/lib/glite /var/log/glite 2>/dev/null || :
-chown glite:glite /var/lib/glite /var/log/glite
+getent passwd glite >/dev/null || adduser --system --group --home /var/lib/glite --shell /bin/sh --disabled-password glite
+mkdir -p /var/lib/glite 2>/dev/null || :
+chown glite:glite /var/lib/glite
 
 #DEBHELPER#

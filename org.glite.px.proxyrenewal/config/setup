@@ -131,6 +131,7 @@ fi
 if test "$setup_crl" = "1"; then
 	if test -x /usr/sbin/fetch-crl; then
 @debian@		# additional fetch-crl setup not needed
+@debian@		:
 @redhat@		/sbin/chkconfig fetch-crl-cron on
 @redhat@		/sbin/chkconfig fetch-crl-boot on
 @redhat@		/sbin/service fetch-crl-cron start
@@ -169,7 +170,7 @@ if test "$setup_startup" = "1" -a "$startup_error" != "1"; then
 @fedora@
 @fedora@	startup_error=0
 @fedora@	systemctl restart glite-proxy-renewd.service || startup_error=1
-@debian@	update-rc.d glite-proxy-renewd defaults
+@debian@	update-rc.d glite-proxy-renewald defaults
 @debian@
 @debian@	startup_error=0
 @debian@	$GLITE_LOCATION_ETC/init.d/glite-proxy-renewald restart || startup_error=1
