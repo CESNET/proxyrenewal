@@ -14,6 +14,9 @@ BuildRequires:  chrpath
 BuildRequires:  globus-gssapi-gsi-devel%{?_isa}
 BuildRequires:  libtool
 BuildRequires:  myproxy-devel%{?_isa}
+BuildRequires:  perl
+BuildRequires:  perl(Getopt::Long)
+BuildRequires:  perl(POSIX)
 BuildRequires:  pkgconfig
 BuildRequires:  voms-devel%{?_isa}
 Requires:       %{name}-devel%{?_isa}
@@ -68,7 +71,7 @@ This package contains daemon and client program of gLite proxyrenewal.
 
 
 %build
-/usr/bin/perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=%{_prefix} --libdir=%{_lib} --project=emi --module px.proxyrenewal
+perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=%{_prefix} --libdir=%{_lib} --project=emi --module px.proxyrenewal
 CFLAGS="%{?optflags}" LDFLAGS="%{?__global_ldflags}" make
 
 

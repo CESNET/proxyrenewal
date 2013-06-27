@@ -11,6 +11,9 @@ Source:         http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 BuildArch:      noarch
+BuildRequires:  perl
+BuildRequires:  perl(Getopt::Long)
+BuildRequires:  perl(POSIX)
 Requires:       glite-yaim-bdii
 Requires:       glite-yaim-core
 Obsoletes:      glite-yaim-myproxy <= 4.0.4-2
@@ -25,7 +28,7 @@ Provides:       glite-yaim-myproxy = %{version}-%{release}
 
 
 %build
-/usr/bin/perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=%{_prefix} --libdir=%{_lib} --project=emi --module px.myproxy-yaim
+perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=%{_prefix} --libdir=%{_lib} --project=emi --module px.myproxy-yaim
 make
 
 
