@@ -67,7 +67,7 @@ MYPROXY_CONF_NEW=${GLITE_PX_LOCATION_ETC}/myproxy-server.config_NEW
 pgrep -lf myproxy-server.config 2>&1 > /dev/null
 if [ $? = "0" ] ; then
    yaimlog INFO "MyProxy Running with old style configuration, stopping"
-   /sbin/service myproxy-server stop
+   service myproxy-server stop
 fi
 
 
@@ -107,9 +107,13 @@ do
     echo "" >> $MYPROXY_CONF_NEW
 done
 
-/sbin/chkconfig --add myproxy-server
+if [ -x /etc/init.d/myproxy-server ]; then
+  /sbin/chkconfig --add myproxy-server
+  /sbin/chkconfig myproxy-server on
+else
+  systemctl enable myproxy-server.service
+fi
 
-/sbin/chkconfig myproxy-server on
 
 #
 # check if the configuration changed and reload/replace only if necessary
@@ -124,13 +128,13 @@ if [ $rc == 0 ]; then
 else
   yaimlog INFO "Reloading MyProxy server"
   mv $MYPROXY_CONF_NEW $MYPROXY_CONF
-  /etc/init.d/myproxy-server reload < /dev/null
+  service myproxy-server reload < /dev/null
 fi
 
-/etc/init.d/myproxy-server status 2>&1 > /dev/null
+service myproxy-server status 2>&1 > /dev/null
 if [ $? != "0" ] ; then
   yaimlog INFO "MyProxy server not running so starting"
-  /etc/init.d/myproxy-server start
+  service myproxy-server start
 fi
 
 
