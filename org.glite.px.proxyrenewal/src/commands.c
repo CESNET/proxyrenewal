@@ -640,8 +640,8 @@ encode_record(glite_renewal_core_context ctx, proxy_record *record, char **line)
        char *l;
 
        ret = asprintf(&l, "%s, fqans=%s", tmp_line, record->fqans);
+       free(tmp_line);
        if (ret == -1) {
-	   free(tmp_line);
 	   return ENOMEM;
        }
        tmp_line = l;
