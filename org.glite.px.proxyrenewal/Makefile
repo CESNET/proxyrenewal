@@ -190,10 +190,10 @@ ${LIB_CORE_THR}: ${LIB_CORE_THR_OBJS}
 endif
 
 ${DAEMON}: ${DAEMONOBJ} ${default_libcore}
-	${LINK} -o $@ ${DAEMONOBJ} ${default_libcore} ${GLOBUS_GSSAPI_GSI_LIBS} ${GLOBUS_EXTRA_LIBS}
+	${LINK} -o $@ ${DAEMONOBJ} ${default_libcore} ${default_libvoms} ${GLOBUS_GSSAPI_GSI_LIBS} ${GLOBUS_EXTRA_LIBS}
 
 ${CLIENT}: ${CLIENTOBJ} ${default_lib}
-	${LINK} -o $@ ${CLIENTOBJ} ${default_lib} ${default_libvoms} ${GLOBUS_GSSAPI_GSI_LIBS}
+	${LINK} -o $@ ${CLIENTOBJ} ${default_lib} ${GLOBUS_GSSAPI_GSI_LIBS}
 
 ${THRLIBOBJ} ${LIB_CORE_THR_OBJS}: %.thr.o: %.c
 	${COMPILE} ${MYPROXY_THR_INC} ${GLOBUS_THR_INC} -o $@ -c $<
