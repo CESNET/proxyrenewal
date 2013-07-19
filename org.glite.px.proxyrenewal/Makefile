@@ -135,12 +135,14 @@ ifeq (${thrflavour},)
 lib_LTLIBRARIES=${LIB} ${LIB_CORE}
 default_libcore=${LIB_CORE}
 default_lib=${LIB}
+default_libvoms=${VOMS_LIBS}
 GLOBUS_EXTRA_LIBS=-lglobus_gsi_proxy_core -lglobus_gsi_credential \
 	-lglobus_gsi_cert_utils -lglobus_common
 else
 lib_LTLIBRARIES=${NOTHRLIB} ${THRLIB} ${LIB_CORE_NOTHR}
 default_libcore=${LIB_CORE_NOTHR}
 default_lib=${NOTHRLIB}
+default_libvoms=${VOMS_LIBS_NOTHR}
 GLOBUS_EXTRA_LIBS=-lglobus_gsi_proxy_core_${nothrflavour} \
 	-lglobus_gsi_credential_${nothrflavour} \
 	-lglobus_gsi_cert_utils_${nothrflavour} \
@@ -191,7 +193,7 @@ ${DAEMON}: ${DAEMONOBJ} ${default_libcore}
 	${LINK} -o $@ ${DAEMONOBJ} ${default_libcore} ${GLOBUS_GSSAPI_GSI_LIBS} ${GLOBUS_EXTRA_LIBS}
 
 ${CLIENT}: ${CLIENTOBJ} ${default_lib}
-	${LINK} -o $@ ${CLIENTOBJ} ${default_lib} ${GLOBUS_GSSAPI_GSI_LIBS}
+	${LINK} -o $@ ${CLIENTOBJ} ${default_lib} ${default_libvoms} ${GLOBUS_GSSAPI_GSI_LIBS}
 
 ${THRLIBOBJ} ${LIB_CORE_THR_OBJS}: %.thr.o: %.c
 	${COMPILE} ${MYPROXY_THR_INC} ${GLOBUS_THR_INC} -o $@ -c $<
