@@ -119,3 +119,8 @@
 - YAIM-less deployment improvements (fetching CRL on Fedora, defaults for PX to perform setup out-of-the-box)
 - Debugging packages of subpackages in Debian
 
+1.3.33-1
+- Improved memory handling
+- Improved packaging based on Fedora review
+- Fixed install scripts of proxyrenewal on Debian
+
