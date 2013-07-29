@@ -911,7 +911,7 @@ check_proxyname(glite_renewal_core_context ctx, char *datafile, char *jobid, cha
    char *p;
    int ret, i;
    char *basename;
-   char *line = ctx->bufsize;
+   char *line = ctx->buffer;
 
    memset(&record, 0, sizeof(record));
 
