@@ -287,6 +287,9 @@ glite_renewal_core_init_ctx(glite_renewal_core_context *context)
    p->log_level = LOG_NOTICE;
    p->log_dst = GLITE_RENEWAL_LOG_SYSLOG;
 
+   p->buffer = malloc(EDG_WLPR_SIZE);
+   p->bufsize = EDG_WLPR_SIZE;
+
    *context = p;
    return 0;
 }
@@ -297,6 +300,7 @@ glite_renewal_core_destroy_ctx(glite_renewal_core_context context)
    if (context == NULL)
       return 0;
    free(context->err_message);
+   free(context->buffer);
    free(context);
    return 0;
 }

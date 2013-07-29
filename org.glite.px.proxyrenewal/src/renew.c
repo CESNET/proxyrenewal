@@ -96,7 +96,6 @@ end:
 static void
 check_renewal(glite_renewal_core_context ctx, char *datafile, int force_renew, int *num_renewed)
 {
-   char line[EDG_WLPR_SIZE];
    proxy_record record;
    char *p;
    int ret, i;
@@ -109,6 +108,7 @@ check_renewal(glite_renewal_core_context ctx, char *datafile, int force_renew, i
    char *entry = NULL;
    char **tmp;
    int num = 0;
+   char *line = ctx->buffer;
 
    assert(datafile != NULL);
 
@@ -139,7 +139,7 @@ check_renewal(glite_renewal_core_context ctx, char *datafile, int force_renew, i
 
    current_time = time(NULL);
 
-   while (fgets(line, sizeof(line), meta_fd) != NULL) {
+   while (fgets(line, ctx->bufsize, meta_fd) != NULL) {
       glite_renewal_core_reset_err(ctx);
       free_record(ctx, &record);
       p = strchr(line, '\n');

@@ -39,6 +39,8 @@ typedef struct glite_renewal_core_context_data {
   char *err_message;
   char *voms_conf;
   int order_attributes;
+  char *buffer;
+  size_t bufsize;
 } glite_renewal_core_context_data;
 
 typedef struct glite_renewal_core_context_data *glite_renewal_core_context;

@@ -655,7 +655,6 @@ encode_record(glite_renewal_core_context ctx, proxy_record *record, char **line)
 static int
 get_record_ext(glite_renewal_core_context ctx, FILE *fd, const char *basename, proxy_record *record, int *last_used_suffix)
 {
-   char line[EDG_WLPR_SIZE];
    int last_suffix = -1;
    int first_unused = -1;
    int ret;
@@ -663,12 +662,13 @@ get_record_ext(glite_renewal_core_context ctx, FILE *fd, const char *basename, p
    proxy_record tmp_record;
    time_t current_time;
    int line_num = 0;
+   char *line = ctx->buffer;
 
    assert(record != NULL);
    memset(&tmp_record, 0, sizeof(tmp_record));
 
    current_time = time(NULL);
-   while (fgets(line, sizeof(line), fd) != NULL) {
+   while (fgets(line, ctx->bufsize, fd) != NULL) {
       line_num++;
       free_record(ctx, &tmp_record);
       p = strchr(line, '\n');
@@ -760,7 +760,6 @@ store_record(glite_renewal_core_context ctx, char *basename, proxy_record *recor
    int stored = 0;
    FILE *fd = NULL;
    int temp;
-   char line[EDG_WLPR_SIZE];
    char *new_line = NULL;
    int ret, i;
    char *p;
@@ -768,6 +767,7 @@ store_record(glite_renewal_core_context ctx, char *basename, proxy_record *recor
    char tmp_file[FILENAME_MAX];
    char meta_file[FILENAME_MAX];
    int line_num = 0;
+   char *line = ctx->buffer;
 
    assert (record != NULL);
 
@@ -785,7 +785,7 @@ store_record(glite_renewal_core_context ctx, char *basename, proxy_record *recor
       ret = errno;
       goto end;
    }
-   while (fgets(line, sizeof(line), fd) != NULL) {
+   while (fgets(line, ctx->bufsize, fd) != NULL) {
       line_num++;
       free_record(ctx, &tmp_record);
       p = strchr(line, '\n');
@@ -907,11 +907,11 @@ check_proxyname(glite_renewal_core_context ctx, char *datafile, char *jobid, cha
 {
    proxy_record record;
    FILE *meta_fd = NULL;
-   char line[EDG_WLPR_SIZE];
    char proxy[FILENAME_MAX];
    char *p;
    int ret, i;
    char *basename;
+   char *line = ctx->bufsize;
 
    memset(&record, 0, sizeof(record));
 
@@ -925,7 +925,7 @@ check_proxyname(glite_renewal_core_context ctx, char *datafile, char *jobid, cha
    basename = strdup(datafile);
    p = basename + strlen(basename) - strlen(".data");
    *p = '\0';
-   while (fgets(line, sizeof(line), meta_fd) != NULL) {
+   while (fgets(line, ctx->bufsize, meta_fd) != NULL) {
       free_record(ctx, &record);
       p = strchr(line, '\n');
       if (p)
@@ -1273,7 +1273,6 @@ update_db(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wlpr_Re
    char tmp_file[FILENAME_MAX];
    char cur_proxy[FILENAME_MAX];
    char datafile[FILENAME_MAX];
-   char line[EDG_WLPR_SIZE];
    char *new_line = NULL;
    char *basename, *proxy = NULL;
    char **entry;
@@ -1281,6 +1280,7 @@ update_db(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wlpr_Re
    int ret;
    char *p;
    time_t current_time;
+   char *line = ctx->buffer;
 
    memset(&record, 0, sizeof(record));
 
@@ -1317,7 +1317,7 @@ update_db(glite_renewal_core_context ctx, edg_wlpr_Request *request, edg_wlpr_Re
 
    current_time = time(NULL);
 
-   while (fgets(line, sizeof(line), fd) != NULL) { 
+   while (fgets(line, ctx->bufsize, fd) != NULL) {
       free_record(ctx, &record);
       p = strchr(line, '\n');
       if (p)
