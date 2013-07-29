@@ -124,3 +124,7 @@
 - Improved packaging based on Fedora review
 - Fixed install scripts of proxyrenewal on Debian
 
+1.3.34-1
+- Bigger buffer in the context instead of the stack to prevent stack overflow (issue #2)
+- VOMS library must be linked explicitely for renewd on some platforms (fixes build on Debian 7)
+
