@@ -35,9 +35,6 @@ Obsoletes:      glite-PX <= 3.2.2-3
 %build
 
 
-%check
-
-
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT

@@ -11,14 +11,14 @@ Source:         http://eticssoft.web.cern.ch/eticssoft/repository/emi/@MODULE@/%
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 BuildRequires:  chrpath
-BuildRequires:  globus-gssapi-gsi-devel%{?_isa}
+BuildRequires:  globus-gssapi-gsi-devel
 BuildRequires:  libtool
-BuildRequires:  myproxy-devel%{?_isa}
+BuildRequires:  myproxy-devel
 BuildRequires:  perl
 BuildRequires:  perl(Getopt::Long)
 BuildRequires:  perl(POSIX)
 BuildRequires:  pkgconfig
-BuildRequires:  voms-devel%{?_isa}
+BuildRequires:  voms-devel
 Requires:       %{name}-devel%{?_isa}
 Requires:       %{name}-progs
 %if 0%{?fedora}
@@ -73,10 +73,6 @@ This package contains daemon and client program of gLite proxyrenewal.
 %build
 perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=%{_prefix} --libdir=%{_lib} --project=emi --module px.proxyrenewal
 CFLAGS="%{?optflags}" LDFLAGS="%{?__global_ldflags}" make
-
-
-%check
-CFLAGS="%{?optflags}" LDFLAGS="%{?__global_ldflags}" make check
 
 
 %install
