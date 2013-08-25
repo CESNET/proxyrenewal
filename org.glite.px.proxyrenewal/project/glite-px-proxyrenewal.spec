@@ -183,7 +183,7 @@ fi
 %{_initrddir}/glite-proxy-renewald
 %endif
 %{_bindir}/glite-proxy-renew
-%{_bindir}/glite-proxy-renewd
+%{_sbindir}/glite-proxy-renewd
 %{_sbindir}/glite-proxy-setup
 %{_mandir}/man1/glite-proxy-renew.1.gz
 %{_mandir}/man8/glite-proxy-renewd.8.gz

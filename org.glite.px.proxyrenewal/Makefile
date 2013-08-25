@@ -221,7 +221,8 @@ examples: ${EXAMPLES}
 install:
 	-mkdir -p ${DESTDIR}${PREFIX}${prefix}/bin ${DESTDIR}${PREFIX}${prefix}/sbin ${DESTDIR}${PREFIX}${prefix}/${libdir} ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal ${DESTDIR}${PREFIX}${prefix}/share/man/man1 ${DESTDIR}${PREFIX}${prefix}/share/man/man8 ${DESTDIR}${PREFIX}${sysdefaultdir} ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version}
 	${INSTALL} -m 755 ${lib_LTLIBRARIES} ${DESTDIR}${PREFIX}${prefix}/${libdir}
-	${INSTALL} -m 755 ${DAEMON} ${CLIENT} ${DESTDIR}${PREFIX}${prefix}/bin
+	${INSTALL} -m 755 ${CLIENT} ${DESTDIR}${PREFIX}${prefix}/bin
+	${INSTALL} -m 755 ${DAEMON} ${DESTDIR}${PREFIX}${prefix}/sbin
 	${INSTALL} -m 755 setup ${DESTDIR}${PREFIX}${prefix}/sbin/glite-proxy-setup
 	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal
 	${INSTALL} -m 644 ${MAN1_GZ} ${DESTDIR}${PREFIX}${prefix}/share/man/man1

@@ -15,7 +15,7 @@ EnvironmentFile=-/etc/profile.d/grid-env.sh
 EnvironmentFile=-/etc/sysconfig/glite-px
 ExecStartPre=/usr/bin/touch /tmp/renewal_vomses
 ExecStartPre=/usr/bin/chmod 644 /tmp/renewal_vomses
-ExecStart=/usr/bin/glite-proxy-renewd -A $GLITE_PROXY_RENEWD_OPTIONS
+ExecStart=/usr/sbin/glite-proxy-renewd -A $GLITE_PROXY_RENEWD_OPTIONS
 
 [Install]
 WantedBy=multi-user.target

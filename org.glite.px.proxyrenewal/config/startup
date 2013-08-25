@@ -81,7 +81,7 @@ start()
 	fi
 	
 	su - $GLITE_USER -c "VOMS_USERCONF=$user_voms_config \
-		$GLITE_LOCATION/bin/glite-proxy-renewd \
+		$GLITE_LOCATION/sbin/glite-proxy-renewd \
 		-r $PROXY_REPOSITORY $creds -A $GLITE_PROXY_RENEWD_OPTIONS"
 
 	if [ $? -eq 0 ]; then

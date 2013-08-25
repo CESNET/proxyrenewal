@@ -150,7 +150,7 @@ fi
 # ==== startup ====
 
 if test "$setup_startup" = "1"; then
-	if test ! -x $GLITE_LOCATION/bin/glite-proxy-renewd; then
+	if test ! -x $GLITE_LOCATION/sbin/glite-proxy-renewd; then
 		echo "$NAME: ERROR: glite-proxy-renewd not installed"
 		startup_error=1
 	fi
