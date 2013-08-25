@@ -40,6 +40,7 @@ default: all
 -include ${top_srcdir}/project/version.properties
 
 version=${module.version}
+docdir?=${prefix}/share/doc/${package}-${version}
 
 VPATH:=${top_srcdir}/src:${top_srcdir}/examples
 
@@ -219,7 +220,7 @@ check:
 examples: ${EXAMPLES}
 
 install:
-	-mkdir -p ${DESTDIR}${PREFIX}${prefix}/bin ${DESTDIR}${PREFIX}${prefix}/sbin ${DESTDIR}${PREFIX}${prefix}/${libdir} ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal ${DESTDIR}${PREFIX}${prefix}/share/man/man1 ${DESTDIR}${PREFIX}${prefix}/share/man/man8 ${DESTDIR}${PREFIX}${sysdefaultdir} ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version}
+	-mkdir -p ${DESTDIR}${PREFIX}${prefix}/bin ${DESTDIR}${PREFIX}${prefix}/sbin ${DESTDIR}${PREFIX}${prefix}/${libdir} ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal ${DESTDIR}${PREFIX}${prefix}/share/man/man1 ${DESTDIR}${PREFIX}${prefix}/share/man/man8 ${DESTDIR}${PREFIX}${sysdefaultdir} ${DESTDIR}${PREFIX}${docdir}
 	${INSTALL} -m 755 ${lib_LTLIBRARIES} ${DESTDIR}${PREFIX}${prefix}/${libdir}
 	${INSTALL} -m 755 ${CLIENT} ${DESTDIR}${PREFIX}${prefix}/bin
 	${INSTALL} -m 755 ${DAEMON} ${DESTDIR}${PREFIX}${prefix}/sbin
@@ -227,7 +228,7 @@ install:
 	cd ${top_srcdir}/interface && ${INSTALL} -m 644 renewal.h renewal_core.h ${DESTDIR}${PREFIX}${prefix}/include/glite/security/proxyrenewal
 	${INSTALL} -m 644 ${MAN1_GZ} ${DESTDIR}${PREFIX}${prefix}/share/man/man1
 	${INSTALL} -m 644 ${MAN8_GZ} ${DESTDIR}${PREFIX}${prefix}/share/man/man8
-	${INSTALL} -m 644 glite-px ${DESTDIR}${PREFIX}${prefix}/share/doc/${package}-${version}/glite-px
+	${INSTALL} -m 644 glite-px ${DESTDIR}${PREFIX}${docdir}/glite-px
 	${INSTALL} -m 644 glite-px ${DESTDIR}${PREFIX}${sysdefaultdir}
 ifeq ($(os_type),fedora)
 	mkdir -p ${DESTDIR}${PREFIX}${unitdir}
