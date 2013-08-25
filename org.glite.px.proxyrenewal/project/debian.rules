@@ -14,7 +14,7 @@ export DH_VERBOSE=1
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	/usr/bin/perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=/usr --libdir=lib --project=emi --module px.proxyrenewal
+	/usr/bin/perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=/usr --libdir=lib --docdir=/usr/share/doc/$(p_base) --project=emi --module px.proxyrenewal
 	touch $@
 
 build: build-arch build-indep
@@ -52,7 +52,7 @@ install: build-stamp
 	ln -s $(p_lib) debian/$(p_dev)/usr/share/doc/$(p_dev)
 	ln -s $(p_lib) debian/$(p_lib)-dbg/usr/share/doc/$(p_lib)-dbg
 	ln -s $(p_lib) debian/$(p_progs)-dbg/usr/share/doc/$(p_progs)-dbg
-	mv debian/tmp/usr/share/doc/glite-px-proxyrenewal-@MAJOR@.@MINOR@.@REVISION@ debian/$(p_progs)/usr/share/doc/$(p_progs)
+	mv debian/tmp/usr/share/doc/$(p_base) debian/$(p_progs)/usr/share/doc/$(p_progs)
 
 binary-indep:
 
