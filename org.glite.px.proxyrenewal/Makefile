@@ -204,9 +204,11 @@ ${THRLIBOBJ} ${LIB_CORE_THR_OBJS}: %.thr.o: %.c
 ${EXAMPLES}: %: %.o
 	${LINK} -o $@ $< ${default_libcore}
 
-${MAN_GZ}: ${MAN}
-	cp $? .
-	gzip -9 -f $(notdir $?)
+%.1.gz: %.1
+	gzip -9 -f -c $< > $@
+
+%.8.gz: %.8
+	gzip -9 -f -c $< > $@
 
 stage: compile
 	$(MAKE) install PREFIX=${stagedir} staging=1
