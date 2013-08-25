@@ -88,8 +88,8 @@ mv $RPM_BUILD_ROOT/etc/init.d $RPM_BUILD_ROOT/etc/rc.d
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -rf {} \;
 find $RPM_BUILD_ROOT -name '*.a' -exec rm -rf {} \;
 find $RPM_BUILD_ROOT -name '*' -print | xargs -I {} -i bash -c "chrpath -d {} > /dev/null 2>&1" || echo 'Stripped RPATH'
-mkdir -p $RPM_BUILD_ROOT/var/lib/glite
-mkdir -p $RPM_BUILD_ROOT/var/spool/glite-renewd
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/glite
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/spool/glite-renewd
 
 
 %clean
@@ -104,7 +104,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre progs
 getent group glite >/dev/null || groupadd -r glite
-getent passwd glite >/dev/null || useradd -r -g glite -d /var/lib/glite -c "gLite user" glite
+getent passwd glite >/dev/null || useradd -r -g glite -d %{_localstatedir}/lib/glite -c "gLite user" glite
 exit 0
 
 
