@@ -279,7 +279,7 @@ edg_wlpr_CleanRequest(edg_wlpr_Request *request)
       free(request->entries);
    }
 
-   memset(request, 0, sizeof(request));
+   memset(request, 0, sizeof(*request));
 }
 
 void
