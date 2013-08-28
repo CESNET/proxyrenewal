@@ -25,7 +25,7 @@ Requires:       %{name}-progs
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
-BuildRequires: systemd
+BuildRequires:  systemd
 %else
 Requires(post): chkconfig
 Requires(preun): chkconfig
@@ -78,15 +78,16 @@ CFLAGS="%{?optflags}" LDFLAGS="%{?__global_ldflags}" make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
-# documentation installed by %doc
+# documentation installed by %%doc
 rm -rf $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 %if ! 0%{?fedora}
 sed -i 's,\(lockfile=/var/lock\),\1/subsys,' $RPM_BUILD_ROOT/etc/init.d/glite-proxy-renewald
-mkdir $RPM_BUILD_ROOT/etc/rc.d
-mv $RPM_BUILD_ROOT/etc/init.d $RPM_BUILD_ROOT/etc/rc.d
+mkdir -p $RPM_BUILD_ROOT%{_initrddir}
+mv $RPM_BUILD_ROOT/etc/init.d/* $RPM_BUILD_ROOT%{_initrddir}
+rm -rf $RPM_BUILD_ROOT/etc/init.d/
 %endif
-find $RPM_BUILD_ROOT -name '*.la' -exec rm -rf {} \;
-find $RPM_BUILD_ROOT -name '*.a' -exec rm -rf {} \;
+rm -f $RPM_BUILD_ROOT%{_libdir}/lib*.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/lib*.la
 find $RPM_BUILD_ROOT -name '*' -print | xargs -I {} -i bash -c "chrpath -d {} > /dev/null 2>&1" || echo 'Stripped RPATH'
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/glite
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/spool/glite-renewd
