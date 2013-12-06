@@ -186,8 +186,8 @@ fi
 %{_bindir}/glite-proxy-renew
 %{_sbindir}/glite-proxy-renewd
 %{_sbindir}/glite-proxy-setup
-%{_mandir}/man1/glite-proxy-renew.1.gz
-%{_mandir}/man8/glite-proxy-renewd.8.gz
+%{_mandir}/man1/glite-proxy-renew.1*
+%{_mandir}/man8/glite-proxy-renewd.8*
 
 
 %changelog
