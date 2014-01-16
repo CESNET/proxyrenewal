@@ -21,7 +21,7 @@ BuildRequires:  pkgconfig
 BuildRequires:  voms-devel
 Requires:       %{name}-devel%{?_isa}
 Requires:       %{name}-progs
-%if 0%{?fedora}
+%if 0%{?rhel} >= 7 || 0%{?fedora}
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -80,7 +80,7 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 # documentation installed by %%doc
 rm -rf $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
-%if ! 0%{?fedora}
+%if ! 0%{?fedora} && 0%{?rhel} <= 6
 sed -i 's,\(lockfile=/var/lock\),\1/subsys,' $RPM_BUILD_ROOT/etc/init.d/glite-proxy-renewald
 mkdir -p $RPM_BUILD_ROOT%{_initrddir}
 mv $RPM_BUILD_ROOT/etc/init.d/* $RPM_BUILD_ROOT%{_initrddir}
@@ -110,11 +110,8 @@ exit 0
 
 
 %post progs
-%if 0%{?fedora}
-if [ $1 -eq 1 ] ; then
-    # Initial installation
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
+%if 0%{?rhel} >= 7 || 0%{?fedora}
+%systemd_post glite-proxy-renewald.service
 %else
 /sbin/chkconfig --add glite-proxy-renewald
 if [ $1 -eq 1 ] ; then
@@ -124,12 +121,8 @@ fi
 
 
 %preun progs
-%if 0%{?fedora}
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable glite-proxy-renewd.service > /dev/null 2>&1 || :
-    /bin/systemctl stop glite-proxy-renewd.service > /dev/null 2>&1 || :
-fi
+%if 0%{?rhel} >= 7 || 0%{?fedora}
+%systemd_preun glite-proxy-renewd.service
 %else
 if [ $1 -eq 0 ] ; then
     /sbin/service glite-proxy-renewald stop >/dev/null 2>&1
@@ -139,12 +132,8 @@ fi
 
 
 %postun progs
-%if 0%{?fedora}
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart glite-proxy-renewd.service >/dev/null 2>&1 || :
-fi
+%if 0%{?rhel} >= 7 || 0%{?fedora}
+%systemd_postun_with_restart glite-proxy-renewd.service
 %else
 if [ "$1" -ge "1" ] ; then
     /sbin/service glite-proxy-renewald condrestart >/dev/null 2>&1 || :
@@ -178,7 +167,7 @@ fi
 %dir %attr(0700, glite, glite) %{_localstatedir}/spool/glite-renewd
 %doc LICENSE project/ChangeLog README config/glite-px
 %config(noreplace missingok) %{_sysconfdir}/sysconfig/glite-px
-%if 0%{?fedora}
+%if 0%{?rhel} >= 7 || 0%{?fedora}
 %{_unitdir}/glite-proxy-renewd.service
 %else
 %{_initrddir}/glite-proxy-renewald
