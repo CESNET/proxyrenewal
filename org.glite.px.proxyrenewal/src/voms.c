@@ -42,8 +42,17 @@ generate_proxy(glite_renewal_core_context ctx, globus_gsi_cred_handle_t cur_prox
    X509 *new_cert = NULL;
    X509 *voms_cert = NULL;
    globus_gsi_cert_utils_cert_type_t proxy_type;
+   globus_gsi_proxy_handle_attrs_t handle_attrs = NULL;
+ 
+   result = globus_gsi_proxy_handle_attrs_init(&handle_attrs);
+   if (result) {
+       glite_renewal_core_set_err(ctx, "globus_gsi_proxy_handle_attrs_init() failed");
+       goto end;
+   }
 
-   result = globus_gsi_proxy_handle_init(&proxy_handle, NULL);
+   globus_gsi_proxy_handle_attrs_set_keybits(handle_attrs, 1024);
+
+   result = globus_gsi_proxy_handle_init(&proxy_handle, handle_attrs);
    if (result) {
       glite_renewal_core_set_err(ctx, "globus_gsi_proxy_handle_init() failed");
       goto end;
@@ -104,6 +113,8 @@ generate_proxy(glite_renewal_core_context ctx, globus_gsi_cred_handle_t cur_prox
    result = globus_gsi_cred_write_proxy(proxy, (char *)new_file);
 
 end:
+   if (handle_attrs)
+       globus_gsi_proxy_handle_attrs_destroy(handle_attrs);
 
    return 0;
 }
