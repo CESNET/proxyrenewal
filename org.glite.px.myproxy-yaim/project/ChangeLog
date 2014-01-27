@@ -73,3 +73,7 @@
 - Support YAIM setup of MyProxy on Fedora
 - Improved packaging based on Fedora review
 
+4.1.15-1
+- Support parallel builds and enable it in rpm packaging.
+- Updated Fedora Packaging Guidelines - no arched BuildRequires, 'make check' in rpm only for packages with unittests.
+
