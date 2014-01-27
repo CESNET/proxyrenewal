@@ -128,3 +128,13 @@
 - Bigger buffer in the context instead of the stack to prevent stack overflow (issue #2)
 - VOMS library must be linked explicitely for renewd on some platforms (fixes build on Debian 7)
 
+1.3.35-1
+- Explicitly request 1024-bit keys when initiating proxies throgh Globus
+- Support for EPEL 7 (based on Fedora 19/20).
+- Specify manpages using glob * in specfiles, rpm can compress it if needed (Fedora Review #1003960).
+- Changeable module documentation directory
+- Consistent macros in rpm (Fedora review #892698).
+- Moving proxyrenewal daemon from bin to sbin (Fedora review #892698).
+- Support parallel builds and enable it in rpm packaging.
+- Updated Fedora Packaging Guidelines - no arched BuildRequires, 'make check' in rpm only for packages with unittests.
+
