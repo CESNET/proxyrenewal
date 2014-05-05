@@ -26,6 +26,8 @@ Section: libdevel
 Architecture: any
 Depends: libglite-security-proxyrenewal1 (= ${binary:Version}), ${misc:Depends}
 Description: Development files for gLite proxyrenewal library
+@DEBIAN_DESCRIPTION@
+ .
  This package contains development libraries and header files for gLite
  proxyrenewal library.
 
@@ -33,6 +35,8 @@ Package: glite-px-proxyrenewal-progs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
 Description: gLite proxyrenewal daemon and client 
+@DEBIAN_DESCRIPTION@
+ .
  This package contains daemon and client program of gLite proxyrenewal.
 
 Package: libglite-security-proxyrenewal1-dbg
@@ -40,6 +44,8 @@ Section: debug
 Architecture: any
 Depends: libglite-security-proxyrenewal1 (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for gLite proxyrenewal library
+@DEBIAN_DESCRIPTION@
+ .
  This package contains debugging symbols for gLite proxyrenewal library.
 
 Package: glite-px-proxyrenewal-progs-dbg
@@ -47,4 +53,6 @@ Section: debug
 Architecture: any
 Depends: glite-px-proxyrenewal-progs (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for gLite proxyrenewal programs
+@DEBIAN_DESCRIPTION@
+ .
  This package contains debugging symbols for gLite proxyrenewal programs.
