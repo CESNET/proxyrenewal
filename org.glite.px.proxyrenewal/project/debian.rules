@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+DPKG_EXPORT_BUILDFLAGS = 1
 -include /usr/share/dpkg/buildflags.mk
 
 p_base=glite-px-proxyrenewal
@@ -11,71 +12,33 @@ p_progs=glite-px-proxyrenewal-progs
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-	/usr/bin/perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=/usr --libdir=lib --docdir=/usr/share/doc/$(p_base) --sysdefaultdir=/etc/default --project=emi --module px.proxyrenewal
-	touch $@
+%:
+	dh $@ --parallel --fail-missing
 
-build: build-arch build-indep
+override_dh_auto_configure: config.status
+config.status:
+	perl ./configure --root=/ --prefix=/usr --libdir=lib --docdir=/usr/share/doc/$(p_base) --sysdefaultdir=/etc/default --project=emi
 
-build-arch build-indep: build-stamp
+override_dh_auto_clean: config.status
+	make clean
 
-build-stamp: configure-stamp
-	dh_testdir
-	CFLAGS="$(CFLAGS) $(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" $(MAKE)
-	CFLAGS="$(CFLAGS) $(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" $(MAKE) check
-	touch $@
-
-clean: configure-stamp
-	dh_testdir
-	dh_testroot
-	rm -f configure-stamp build-stamp
-	$(MAKE) clean
-	rm -f Makefile.inc config.status *.spec
+override_dh_clean:
 	dh_clean
+	rm -vf Makefile.inc config.status *.spec
 
-install: build-stamp
-	dh_testdir
-	dh_testroot
-	dh_prep
-	dh_installdirs
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-	rm -vf debian/tmp/usr/lib/*.la
-	mkdir -p debian/$(p_base)/usr/share/doc
-	mkdir -p debian/$(p_dev)/usr/share/doc
-	mkdir -p debian/$(p_progs)/usr/share/doc
-	mkdir -p debian/$(p_lib)-dbg/usr/share/doc
-	mkdir -p debian/$(p_progs)-dbg/usr/share/doc
-	ln -s $(p_lib) debian/$(p_base)/usr/share/doc/$(p_base)
-	ln -s $(p_lib) debian/$(p_dev)/usr/share/doc/$(p_dev)
-	ln -s $(p_lib) debian/$(p_lib)-dbg/usr/share/doc/$(p_lib)-dbg
-	ln -s $(p_lib) debian/$(p_progs)-dbg/usr/share/doc/$(p_progs)-dbg
-	mv debian/tmp/usr/share/doc/$(p_base) debian/$(p_progs)/usr/share/doc/$(p_progs)
-
-binary-indep:
-
-binary-arch: install
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs
-	dh_installdocs
-	dh_installexamples
-	dh_installman
-	dh_installlogrotate
-	dh_installinit -p$(p_progs) --onlyscripts --no-start --name=glite-proxy-renewald
-	dh_installcron
-	dh_install --fail-missing
-	dh_link
+override_dh_strip:
 	dh_strip -p$(p_lib) --dbg-package=$(p_lib)-dbg
 	dh_strip -p$(p_progs) --dbg-package=$(p_progs)-dbg
-	dh_compress
-	dh_fixperms
-	dh_makeshlibs
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
 
-binary: binary-arch binary-indep
+override_dh_auto_install:
+	dh_auto_install
+	rm -vf debian/tmp/usr/lib/*.la
+	mkdir -p debian/$(p_progs)/usr/share/doc
+	mv debian/tmp/usr/share/doc/$(p_base) debian/$(p_progs)/usr/share/doc/$(p_progs)
+
+override_dh_installdocs:
+	dh_installdocs --link-doc=$(p_lib)
+	dh_installdocs -p$(p_progs)
+
+override_dh_installinit:
+	dh_installinit -p$(p_progs) --onlyscripts --no-start --name=glite-proxy-renewald
