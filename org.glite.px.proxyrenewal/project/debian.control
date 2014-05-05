@@ -32,7 +32,7 @@ Description: Development files for gLite proxyrenewal library
 
 Package: glite-px-proxyrenewal-progs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, psmisc
 Description: gLite proxyrenewal daemon and client 
 @DEBIAN_DESCRIPTION@
  .

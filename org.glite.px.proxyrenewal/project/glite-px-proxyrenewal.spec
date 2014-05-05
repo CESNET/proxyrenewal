@@ -62,6 +62,9 @@ proxyrenewal library.
 %package        progs
 Summary:        gLite proxyrenewal daemon and client
 Group:          System Environment/Base
+%if ! 0%{?fedora} && 0%{?rhel} <= 6
+Requires:       psmisc
+%endif
 
 %description    progs
 This package contains daemon and client program of gLite proxyrenewal.
