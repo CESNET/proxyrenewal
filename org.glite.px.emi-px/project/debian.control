@@ -10,7 +10,6 @@ DM-Upload-Allowed: yes
 @DEBIAN_VCS@
 
 Package: emi-px
-Section: misc
 Architecture: any
 Depends: ${misc:Depends}, emi-version, fetch-crl, myproxy-server, myproxy-admin
 Recommends: bdii, glite-info-provider-service, glue-schema

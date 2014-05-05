@@ -10,7 +10,6 @@ DM-Upload-Allowed: yes
 @DEBIAN_VCS@
 
 Package: glite-px-proxyrenewal
-Section: misc
 Architecture: any
 Depends: ${misc:Depends}, libglite-security-proxyrenewal1 (= ${binary:Version}), libglite-security-proxyrenewal-dev (= ${binary:Version}), glite-px-proxyrenewal-progs (= ${binary:Version})
 Description: Virtual package with runtime and development files of gLite proxyrenewal
@@ -18,7 +17,6 @@ Description: Virtual package with runtime and development files of gLite proxyre
  proxyrenewal.
 
 Package: libglite-security-proxyrenewal1
-Section: misc
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: @SUMMARY@
@@ -27,16 +25,13 @@ Description: @SUMMARY@
 Package: libglite-security-proxyrenewal-dev
 Section: libdevel
 Architecture: any
-Priority: extra
 Depends: libglite-security-proxyrenewal1 (= ${binary:Version}), ${misc:Depends}
 Description: Development files for gLite proxyrenewal library
  This package contains development libraries and header files for gLite
  proxyrenewal library.
 
 Package: glite-px-proxyrenewal-progs
-Section: misc
 Architecture: any
-Priority: extra
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
 Description: gLite proxyrenewal daemon and client 
  This package contains daemon and client program of gLite proxyrenewal.
@@ -44,7 +39,6 @@ Description: gLite proxyrenewal daemon and client
 Package: libglite-security-proxyrenewal1-dbg
 Section: debug
 Architecture: any
-Priority: extra
 Depends: libglite-security-proxyrenewal1 (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for gLite proxyrenewal library
  This package contains debugging symbols for gLite proxyrenewal library.
@@ -52,7 +46,6 @@ Description: Debugging symbols for gLite proxyrenewal library
 Package: glite-px-proxyrenewal-progs-dbg
 Section: debug
 Architecture: any
-Priority: extra
 Depends: glite-px-proxyrenewal-progs (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for gLite proxyrenewal programs
  This package contains debugging symbols for gLite proxyrenewal programs.
