@@ -53,13 +53,9 @@ SOURCES=\
 	Makefile README
 SOURCES_EXEC=config/setup config/startup doc/*.sh project/doc_proxyrenewal.pl
 
-ifeq ($(os_type),debian)
-sysdefaultdir=${sysconfdir}/default
-else
-sysdefaultdir=${sysconfdir}/sysconfig
-endif
+sysdefaultdir?=${sysconfdir}/default
 
-ifeq ($(os_type),fedora)
+ifeq ($(os_type),systemd)
 unitdir=`pkg-config systemd --variable=systemdsystemunitdir`
 endif
 
@@ -230,7 +226,7 @@ install:
 	${INSTALL} -m 644 ${MAN8_GZ} ${DESTDIR}${PREFIX}${prefix}/share/man/man8
 	${INSTALL} -m 644 glite-px ${DESTDIR}${PREFIX}${docdir}/glite-px
 	${INSTALL} -m 644 glite-px ${DESTDIR}${PREFIX}${sysdefaultdir}
-ifeq ($(os_type),fedora)
+ifeq ($(os_type),systemd)
 	mkdir -p ${DESTDIR}${PREFIX}${unitdir}
 	${INSTALL} -m 644 ${top_srcdir}/config/systemd.proxy-renewd ${DESTDIR}${PREFIX}${unitdir}/glite-proxy-renewd.service
 else

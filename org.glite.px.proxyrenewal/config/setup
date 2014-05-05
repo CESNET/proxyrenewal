@@ -136,11 +136,11 @@ if test "$setup_crl" = "1"; then
 @redhat@		/sbin/chkconfig fetch-crl-boot on
 @redhat@		/sbin/service fetch-crl-cron start
 @redhat@		/sbin/service fetch-crl-boot start
-@fedora@		systemctl enable fetch-crl-cron.service
-@fedora@		systemctl enable fetch-crl-boot.service
-@fedora@		systemctl start fetch-crl-cron.service
-@fedora@		qecho "Fetching CRL..."
-@fedora@		systemctl start fetch-crl-boot.service
+@systemd@		systemctl enable fetch-crl-cron.service
+@systemd@		systemctl enable fetch-crl-boot.service
+@systemd@		systemctl start fetch-crl-cron.service
+@systemd@		qecho "Fetching CRL..."
+@systemd@		systemctl start fetch-crl-boot.service
 	else
 		echo "$NAME: WARNING: fetch-crl not found, fetching won't be configured"
 	fi
@@ -159,17 +159,17 @@ if test "$setup_startup" = "1"; then
 	fi
 fi
 if test "$setup_startup" = "1" -a "$startup_error" != "1"; then
-@fedora@	systemd_unitdir=`pkg-config systemd --variable=systemdsystemunitdir`
-@fedora@	systemd_confdir=`pkg-config systemd --variable=systemdsystemconfdir`
-@fedora@	sed -e "s|\(X509_USER_CERT\).*|\1=$GLITE_HOST_CERT|" \
-@fedora@	    -e "s|\(X509_USER_KEY\).*|\1=$GLITE_HOST_KEY|" \
-@fedora@	    $systemd_unitdir/glite-proxy-renewd.service > $systemd_confdir/glite-proxy-renewd.service
-@fedora@	systemctl --system daemon-reload
-@fedora@
-@fedora@	systemctl enable glite-proxy-renewd.service
-@fedora@
-@fedora@	startup_error=0
-@fedora@	systemctl restart glite-proxy-renewd.service || startup_error=1
+@systemd@	systemd_unitdir=`pkg-config systemd --variable=systemdsystemunitdir`
+@systemd@	systemd_confdir=`pkg-config systemd --variable=systemdsystemconfdir`
+@systemd@	sed -e "s|\(X509_USER_CERT\).*|\1=$GLITE_HOST_CERT|" \
+@systemd@	    -e "s|\(X509_USER_KEY\).*|\1=$GLITE_HOST_KEY|" \
+@systemd@	    $systemd_unitdir/glite-proxy-renewd.service > $systemd_confdir/glite-proxy-renewd.service
+@systemd@	systemctl --system daemon-reload
+@systemd@
+@systemd@	systemctl enable glite-proxy-renewd.service
+@systemd@
+@systemd@	startup_error=0
+@systemd@	systemctl restart glite-proxy-renewd.service || startup_error=1
 @debian@	update-rc.d glite-proxy-renewald defaults
 @debian@
 @debian@	startup_error=0
