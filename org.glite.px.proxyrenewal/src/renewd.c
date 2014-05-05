@@ -574,7 +574,7 @@ int main(int argc, char *argv[])
    if (!debug) {
       /* chdir ? */
       if (daemon(1,0) == -1) {
-	 perror("deamon()");
+	 perror("daemon()");
 	 exit(1);
       }
       openlog(progname, LOG_PID, LOG_DAEMON);

@@ -83,7 +83,7 @@ renew_proxy(glite_renewal_core_context ctx, proxy_record *record, char *basename
       goto end;
    }
 
-   edg_wlpr_Log(ctx, LOG_DEBUG, "Proxy %s succesfully renewed", repository_file);
+   edg_wlpr_Log(ctx, LOG_DEBUG, "Proxy %s successfully renewed", repository_file);
    ret = 0;
 
 end:

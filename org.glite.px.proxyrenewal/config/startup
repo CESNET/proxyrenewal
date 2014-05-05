@@ -5,8 +5,8 @@
 # Required-Stop: $remote_fs $network $syslog
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
-# Description: Proxyrenewal deamon
-# Short-Description: Proxyrenewal deamon
+# Description: Proxyrenewal daemon
+# Short-Description: Proxyrenewal daemon
 ### END INIT INFO
 # chkconfig: - 75 25
 #
