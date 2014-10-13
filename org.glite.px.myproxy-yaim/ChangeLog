@@ -77,3 +77,7 @@
 - Support parallel builds and enable it in rpm packaging.
 - Updated Fedora Packaging Guidelines - no arched BuildRequires, 'make check' in rpm only for packages with unittests.
 
+4.1.16-1
+- ChangeLog moved to location mandated by packaging guidelines
+- DM-Upload-Allowed not used anymore
+
