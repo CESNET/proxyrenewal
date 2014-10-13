@@ -138,3 +138,14 @@
 - Support parallel builds and enable it in rpm packaging.
 - Updated Fedora Packaging Guidelines - no arched BuildRequires, 'make check' in rpm only for packages with unittests.
 
+1.3.36-1
+- ChangeLog moved to location mandated by packaging guidelines
+- Bug reporting information updated in man pages
+- Added runtime dependency for the 'killall' utility
+- DM-Upload-Allowed not used anymore
+- os_type used only for startup/boot type
+- new configure option --sysdefaultdir
+- New version of machine readable Debian copyright file
+- Using hardened build (-fPIE cflags and -z now ldflags) for RPMs with daemons
+- Rebuilt with MyProxy v. 6
+
