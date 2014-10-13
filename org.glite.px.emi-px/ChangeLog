@@ -13,3 +13,7 @@
 1.0.3-1
 - YAIM removed from the metapackage for Debian, all BDII stuff kept as recommended dependencies
 
+1.0.4-1
+- ChangeLog moved to location mandated by packaging guidelines
+- Packaging adjustment
+
