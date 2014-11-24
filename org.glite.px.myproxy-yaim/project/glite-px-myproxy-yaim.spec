@@ -28,7 +28,7 @@ Provides:       glite-yaim-myproxy = %{version}-%{release}
 
 
 %build
-perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=%{_prefix} --libdir=%{_lib} --project=emi --module px.myproxy-yaim
+perl ./configure --root=/ --prefix=%{_prefix} --libdir=%{_lib} --project=emi
 make %{?_smp_mflags}
 
 

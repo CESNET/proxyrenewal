@@ -75,7 +75,7 @@ This package contains daemon and client program of gLite proxyrenewal.
 
 
 %build
-perl ./configure --thrflavour= --nothrflavour= --root=/ --prefix=%{_prefix} --libdir=%{_lib} --sysdefaultdir=%{_sysconfdir}/sysconfig --project=emi --module px.proxyrenewal
+perl ./configure --root=/ --prefix=%{_prefix} --libdir=%{_lib} --sysdefaultdir=%{_sysconfdir}/sysconfig --project=emi
 CFLAGS="%{?optflags}" LDFLAGS="%{?__global_ldflags}" make %{?_smp_mflags}
 
 
