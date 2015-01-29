@@ -187,7 +187,7 @@ ${LIB_CORE_THR}: ${LIB_CORE_THR_OBJS}
 endif
 
 ${DAEMON}: ${DAEMONOBJ} ${default_libcore}
-	${LINK} -o $@ ${DAEMONOBJ} ${default_libcore} ${default_libvoms} ${GLOBUS_GSSAPI_GSI_LIBS} ${GLOBUS_EXTRA_LIBS}
+	${LINK} -o $@ ${DAEMONOBJ} ${default_libcore} ${default_libvoms} ${GLOBUS_GSSAPI_GSI_LIBS} ${GLOBUS_EXTRA_LIBS} -lcrypto
 
 ${CLIENT}: ${CLIENTOBJ} ${default_lib}
 	${LINK} -o $@ ${CLIENTOBJ} ${default_lib} ${GLOBUS_GSSAPI_GSI_LIBS}
