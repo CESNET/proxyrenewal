@@ -145,11 +145,13 @@ fi
 
 
 %files
+%{!?_licensedir:%global license %doc}
 %defattr(-,root,root)
 
 %files libs
 %defattr(-,root,root)
-%doc LICENSE ChangeLog
+%doc ChangeLog
+%license LICENSE
 %{_libdir}/libglite_security_proxyrenewal.so.1
 %{_libdir}/libglite_security_proxyrenewal.so.1.*
 %{_libdir}/libglite_security_proxyrenewal_core.so.1
@@ -168,7 +170,8 @@ fi
 %defattr(-,root,root)
 %dir %attr(0755, glite, glite) %{_localstatedir}/lib/glite
 %dir %attr(0700, glite, glite) %{_localstatedir}/spool/glite-renewd
-%doc LICENSE ChangeLog README config/glite-px
+%doc ChangeLog README config/glite-px
+%license LICENSE
 %config(noreplace missingok) %{_sysconfdir}/sysconfig/glite-px
 %if 0%{?rhel} >= 7 || 0%{?fedora}
 %{_unitdir}/glite-proxy-renewd.service

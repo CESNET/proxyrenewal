@@ -43,8 +43,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files
+%{!?_licensedir:%global license %doc}
 %defattr(-,root,root)
-%doc ChangeLog LICENSE
+%doc ChangeLog
+%license LICENSE
 %dir /opt/glite/
 %dir /opt/glite/man/
 %dir /opt/glite/man/man1/
