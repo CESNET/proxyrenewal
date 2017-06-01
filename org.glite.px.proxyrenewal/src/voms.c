@@ -100,7 +100,7 @@ generate_proxy(glite_renewal_core_context ctx, globus_gsi_cred_handle_t cur_prox
 #if 0
    X509_sign(voms_cert, cur_proxy_priv_key, proxy_handle->attrs->signing_algorithm);
 #else
-   X509_sign(voms_cert, cur_proxy_priv_key, EVP_md5());
+   X509_sign(voms_cert, cur_proxy_priv_key, EVP_sha256());
 #endif
 
    /* And put the cert back, older one is unallocated by the function */
